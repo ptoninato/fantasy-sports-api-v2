@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run build && node build/index.js",
     "build": "rimraf ./build && tsc",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/index.ts",
+    "dev": "npm run lint && nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/index.ts",
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix",
     "prettier-format": "prettier --config .prettierrc \"src/**/*.ts\" --write"
