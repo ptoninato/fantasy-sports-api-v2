@@ -13,5 +13,5 @@ RUN npm install
 COPY . .
 
 # Exports
-EXPOSE 3000
+EXPOSE 5000
 CMD [ "npm", "run", "dev" ]
