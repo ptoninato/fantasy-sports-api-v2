@@ -54,6 +54,21 @@ app.get('/getLeagues', async (req, res) => {
   res.json(result);
 });
 
+app.get('/login', (req, res) => {
+  yf.auth(
+    res // response object to redirect the user to the Yahoo! login screen
+  );
+});
+
+app.get('/auth/callback', (req, res) => {
+  yf.authCallback(
+    req, // the request will contain the auth code from Yahoo!
+    callbackRedirect(res) // callback function that will be called after the token has been retrieved
+  );
+
+  GetLeagues();
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Server Started at ${process.env.PROTOCOL}://${process.env.DOMAIN}:${process.env.PORT}`); // eslint-disable-line
 });
