@@ -21,7 +21,7 @@ async function GetLeagues() {
   // promise based
   try {
     const players = await yf.user.games();
-    console.log(players);
+    return players;
   } catch (e) {
     // handle error
     console.log(e);
@@ -29,7 +29,29 @@ async function GetLeagues() {
 }
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+  yf.auth(
+    res // response object to redirect the user to the Yahoo! login screen
+  );
+  res.send('Hello World!');
+});
+
+app.get('/login', (req, res) => {
+  yf.auth(
+    res // response object to redirect the user to the Yahoo! login screen
+  );
+});
+
+app.get('/auth/callback', async (req, res) => {
+  await yf.authCallback(req, function callbackRedirect() {
+    console.log('here');
+  }); // the request will contain the auth code from Yahoo!
+  res.redirect('/');
+});
+
+app.get('/getLeagues', async (req, res) => {
+  const result = await GetLeagues();
+  console.log(result);
+  res.json(result);
 });
 
 app.get('/login', (req, res) => {
