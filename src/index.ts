@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import YahooFantasy from 'yahoo-fantasy';
 import { Response } from 'express-serve-static-core';
+import { getUserGames } from './services/YahooApi/yahooUser';
 
 dotenv.config();
 
@@ -20,8 +21,8 @@ function callbackRedirect(res: Response<any, Record<string, any>, number>) {
 async function GetLeagues() {
   // promise based
   try {
-    const players = await yf.user.games();
-    console.log(players);
+    const data = await getUserGames(yf);
+    console.log(data);
   } catch (e) {
     // handle error
     console.log(e);
@@ -38,12 +39,17 @@ app.get('/login', (req, res) => {
   );
 });
 
-app.get('/auth/callback', (req, res) => {
-  yf.authCallback(
+app.get('/auth/callback', async (req, res) => {
+  await yf.authCallback(
     req, // the request will contain the auth code from Yahoo!
-    callbackRedirect(res) // callback function that will be called after the token has been retrieved
+    function test() {
+      console.log('logged in');
+    } // callback function that will be called after the token has been retrieved
   );
+});
 
+app.get('/getleagues', async (req, res) => {
+  console.log(typeof yf);
   GetLeagues();
 });
 
