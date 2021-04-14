@@ -2,7 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import YahooFantasy from 'yahoo-fantasy';
 import { Response } from 'express-serve-static-core';
-import { getUserGames } from './services/YahooApi/yahooUser';
+import yahooUser from './services/api/YahooApi/userApiService';
+import gameKeyService from './services/api/gameKeyService';
 
 dotenv.config();
 
@@ -16,17 +17,6 @@ const yf = new YahooFantasy(
 
 function callbackRedirect(res: Response<any, Record<string, any>, number>) {
   res.redirect('/');
-}
-
-async function GetLeagues() {
-  // promise based
-  try {
-    const data = await getUserGames(yf);
-    console.log(data);
-  } catch (e) {
-    // handle error
-    console.log(e);
-  }
 }
 
 app.get('/', (req, res) => {
@@ -46,11 +36,18 @@ app.get('/auth/callback', async (req, res) => {
       console.log('logged in');
     } // callback function that will be called after the token has been retrieved
   );
+  res.redirect('/');
 });
 
 app.get('/getleagues', async (req, res) => {
-  console.log(typeof yf);
-  GetLeagues();
+  const game_keys = await gameKeyService.getGameKeysForUser(yf);
+
+  const userLeagues = await yahooUser.getUserGameLeaguesByGameKeys(
+    yf,
+    game_keys
+  );
+
+  res.json(userLeagues);
 });
 
 app.listen(process.env.PORT, () => {
