@@ -4,6 +4,7 @@ import YahooFantasy from 'yahoo-fantasy';
 import { Response } from 'express-serve-static-core';
 import yahooUser from './services/api/YahooApi/userApiService';
 import gameKeyService from './services/api/gameKeyService';
+import leagueRoutes from './routes/LeagueRoutes';
 
 dotenv.config();
 
@@ -14,10 +15,6 @@ const yf = new YahooFantasy(
   '',
   `${process.env.YahooRedirectUri}/auth/callback`
 );
-
-function callbackRedirect(res: Response<any, Record<string, any>, number>) {
-  res.redirect('/');
-}
 
 app.get('/', (req, res) => {
   res.send('Hello World');
