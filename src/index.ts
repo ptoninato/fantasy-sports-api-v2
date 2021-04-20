@@ -4,17 +4,21 @@ import YahooFantasy from 'yahoo-fantasy';
 import { Response } from 'express-serve-static-core';
 import yahooUser from './services/api/YahooApi/userApiService';
 import gameKeyService from './services/api/gameKeyService';
-import leagueRoutes from './routes/LeagueRoutes';
+import LeagueRoutes from './routes/league.routes';
+import * as leagueController from './controllers/LeagueController';
 
 dotenv.config();
 
 const app = express();
+
 const yf = new YahooFantasy(
   `${process.env.YahooClient}`,
   `${process.env.YahooSecret}`,
   '',
   `${process.env.YahooRedirectUri}/auth/callback`
 );
+
+app.get('/getLeagues', leagueController.getLeagues);
 
 app.get('/', (req, res) => {
   res.send('Hello World');

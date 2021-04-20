@@ -1,20 +1,17 @@
 import gameKeyService from '../services/api/gameKeyService';
 import yahooUser from '../services/api/YahooApi/userApiService';
+import { Request, Response } from 'express';
 
-function LeagueController(): void {
-  async function GetLeagues(
-    req: Express.Request,
-    res: Express.Response,
-    yf: any
-  ): Promise<Express.Response> {
-    const game_keys = await gameKeyService.getGameKeysForUser(yf);
-    const userLeagues = await yahooUser.getUserGameLeaguesByGameKeys(
-      yf,
-      game_keys
-    );
+export async function getLeagues(
+  req: Request,
+  res: Response,
+  yf: any
+): Promise<Response> {
+  const game_keys = await gameKeyService.getGameKeysForUser(yf);
+  const userLeagues = await yahooUser.getUserGameLeaguesByGameKeys(
+    yf,
+    game_keys
+  );
 
-    return res;
-  }
+  return res.json(userLeagues);
 }
-
-export default new LeagueController();
