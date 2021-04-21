@@ -1,15 +1,16 @@
 import gameKeyService from '../services/api/gameKeyService';
 import yahooUser from '../services/api/YahooApi/userApiService';
 import { Request, Response } from 'express';
+import YahooFantasy from '../services/api/YahooFantasyWrapper';
 
 export async function getLeagues(
   req: Request,
-  res: Response,
-  yf: any
+  res: Response
 ): Promise<Response> {
-  const game_keys = await gameKeyService.getGameKeysForUser(yf);
+  console.log('here');
+  const game_keys = await gameKeyService.getGameKeysForUser(YahooFantasy.yf);
   const userLeagues = await yahooUser.getUserGameLeaguesByGameKeys(
-    yf,
+    YahooFantasy.yf,
     game_keys
   );
 
