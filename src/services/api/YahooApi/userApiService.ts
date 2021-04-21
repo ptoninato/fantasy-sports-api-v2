@@ -1,3 +1,5 @@
+import { UserGames } from '../../../Types/UserGames';
+
 export async function getUserGames(
   yahooApi: any
 ): Promise<Record<string, unknown>> {
@@ -18,8 +20,11 @@ export async function getUserGames(
 async function getUserGameLeaguesByGameKeys(
   yahooApi: any,
   gameKeys: string[]
-): Promise<string> {
-  const returnedData = await yahooApi.user.game_leagues(gameKeys);
+): Promise<UserGames> {
+  const returnedData = (await yahooApi.user.game_leagues(
+    gameKeys
+  )) as UserGames;
+
   return returnedData;
 }
 
