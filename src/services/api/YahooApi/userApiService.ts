@@ -4,6 +4,7 @@ export async function getUserGames(
   yahooApi: any
 ): Promise<Record<string, unknown>> {
   const returnedData = await yahooApi.user.games();
+  console.log(returnedData);
   const codes = await returnedData.games.reduce(
     (data: any[], game: { code: string }) => {
       if (game.code === 'mlb' || game.code === 'nfl') {

@@ -1,13 +1,15 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import YahooFantasy from './services/api/YahooFantasyWrapper';
-import yahooUser from './services/api/YahooApi/userApiService';
-import gameKeyService from './services/api/gameKeyService';
 import LeagueRoutes from './routes/league.routes';
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
+
+app.use(cors());
+app.options('*', cors());
 
 app.use('/leagues', LeagueRoutes);
 
