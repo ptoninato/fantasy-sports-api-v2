@@ -1,13 +1,14 @@
-import { UserGames } from '../../../Types/UserGames';
+import { UserGames, Code } from '../../../Types/UserGames';
+import YahooApi from '../YahooFantasyWrapper';
 
-export async function getUserGames(
-  yahooApi: any
-): Promise<Record<string, unknown>> {
-  const returnedData = await yahooApi.user.games();
-  console.log(returnedData);
-  const codes = await returnedData.games.reduce(
+export async function getUserGames(): Promise<any[]> {
+  const returnedData = await YahooApi.yf.user.games();
+
+  const userGame = returnedData as UserGames;
+
+  const codes = await userGame.games.reduce(
     (data: any[], game: { code: string }) => {
-      if (game.code === 'mlb' || game.code === 'nfl') {
+      if (game.code === Code.Mlb || game.code === Code.Nfl) {
         data.push(game);
       }
       return data;
@@ -19,10 +20,9 @@ export async function getUserGames(
 }
 
 async function getUserGameLeaguesByGameKeys(
-  yahooApi: any,
   gameKeys: string[]
 ): Promise<UserGames> {
-  const returnedData = (await yahooApi.user.game_leagues(
+  const returnedData = (await YahooApi.yf.user.game_leagues(
     gameKeys
   )) as UserGames;
 

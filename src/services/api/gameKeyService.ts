@@ -1,9 +1,7 @@
 import { getUserGames } from './YahooApi/userApiService';
 
-async function getGameKeysForUser(
-  yahooApi: Record<string, unknown>
-): Promise<string[]> {
-  const data = await getUserGames(yahooApi);
+async function getGameKeysForUser(): Promise<string[]> {
+  const data = await getUserGames();
   const game_keys = [];
   for (const key in data) {
     const record = data[key];
