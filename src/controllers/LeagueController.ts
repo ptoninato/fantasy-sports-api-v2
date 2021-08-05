@@ -7,9 +7,6 @@ export async function getLeagues(
   req: Request,
   res: Response
 ): Promise<Response> {
-  console.log('here');
-  const test = await leagueDAO.GetLeagueRecords();
-  console.log(test);
   const game_keys = await gameKeyService.getGameKeysForUser();
   const userLeagues = await yahooUser.getUserGameLeaguesByGameKeys(game_keys);
 
