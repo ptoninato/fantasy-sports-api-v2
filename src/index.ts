@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import YahooFantasy from './services/api/YahooFantasyWrapper';
 import LeagueRoutes from './routes/league.routes';
+import ImportRoutes from './routes/importRoutes';
 import cors from 'cors';
 
 dotenv.config();
@@ -12,6 +13,7 @@ app.use(cors());
 app.options('*', cors());
 
 app.use('/leagues', LeagueRoutes);
+app.use('/import', ImportRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World');
@@ -27,5 +29,7 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(`Server Started at ${process.env.PROTOCOL}://${process.env.DOMAIN}:${process.env.PORT}`); // eslint-disable-line
+  console.log(
+    `Server Started at ${process.env.PROTOCOL}://${process.env.DOMAIN}:${process.env.PORT}`
+  ); // eslint-disable-line
 });

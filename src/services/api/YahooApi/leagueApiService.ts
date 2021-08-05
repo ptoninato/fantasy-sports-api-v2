@@ -8,6 +8,14 @@ export async function getLeaguesByYahooGameCodes(
   return returnedData;
 }
 
+export async function getLeagueByYahooGameCode(
+  yahooApi: any,
+  gameCodes: any
+): Promise<string> {
+  const returnedData = await YahooFantasy.yf.user.game_leagues(gameCodes);
+  return returnedData;
+}
+
 export async function getLeagueTeams(
   yahooApi: any,
   leaguekey: any
