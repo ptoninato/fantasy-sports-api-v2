@@ -1,4 +1,5 @@
-import { UserGames, Code } from '../../../Types/UserGames';
+import { UserGames } from '../../../Types/UserGames';
+import { Code } from '../../../Types/Enums';
 import YahooApi from '../YahooFantasyWrapper';
 
 export async function getUserGames(): Promise<any[]> {

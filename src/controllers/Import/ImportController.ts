@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import leagueApi from '../../services/api/YahooApi/leagueApiService';
 import gameApi from '../../services/api/YahooApi/gameApiService';
-import { League } from '../../Types/UserGames';
+import { League } from '../../Types/League';
 
 export async function ImportLeague(
   req: Request,

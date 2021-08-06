@@ -1,4 +1,4 @@
-import { League } from '../../../Types/UserGames';
+import { League } from '../../../Types/League';
 import YahooFantasy from '../YahooFantasyWrapper';
 
 export async function getLeaguesByYahooGameCodes(
