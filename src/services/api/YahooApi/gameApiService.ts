@@ -1,11 +1,15 @@
 import YahooFantasy from '../YahooFantasyWrapper';
+import { Game } from '../../../Types/UserGames';
 
-async function getMetaDataByLeagueKey(leagueKey: string): Promise<string> {
-  console.log(leagueKey);
-  const returnedData = await YahooFantasy.yf.league.meta(leagueKey);
-  return returnedData;
+async function getGameMetaDataByGameKey(gameKey: string): Promise<Game> {
+  console.log(gameKey);
+  const returnedData = await YahooFantasy.yf.game.meta(gameKey);
+  //   console.log(typeof returnedData);
+  const game = <Game>returnedData;
+  console.log(game);
+  return game;
 }
 
 export default {
-  getMetaDataByLeagueKey
+  getGameMetaDataByGameKey
 };

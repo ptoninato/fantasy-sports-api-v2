@@ -1,3 +1,4 @@
+import { League } from '../../../Types/UserGames';
 import YahooFantasy from '../YahooFantasyWrapper';
 
 export async function getLeaguesByYahooGameCodes(
@@ -23,3 +24,18 @@ export async function getLeagueTeams(
   const returnData = await YahooFantasy.yf.league.teams(leaguekey);
   return returnData;
 }
+
+export async function getLeagueMetaDataByLeagueKey(
+  leagueKey: string
+): Promise<League> {
+  console.log(leagueKey);
+  const returnedData = await YahooFantasy.yf.league.meta(leagueKey);
+  //   console.log(typeof returnedData);
+  const league = <League>returnedData;
+  console.log(league);
+  return league;
+}
+
+export default {
+  getLeagueMetaDataByLeagueKey
+};
