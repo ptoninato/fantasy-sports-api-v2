@@ -28,11 +28,8 @@ export async function getLeagueTeams(
 export async function getLeagueMetaDataByLeagueKey(
   leagueKey: string
 ): Promise<League> {
-  console.log(leagueKey);
   const returnedData = await YahooFantasy.yf.league.meta(leagueKey);
-  //   console.log(typeof returnedData);
   const league = <League>returnedData;
-  console.log(league);
   return league;
 }
 

@@ -15,4 +15,44 @@ async function getAllCodeTypes(): Promise<GameCodeType[]> {
   }
 }
 
-export default { getAllCodeTypes };
+async function getCodeTypeByYahooGameCode(
+  yahoogamecode: string
+): Promise<GameCodeType> {
+  try {
+    const query = `SELECT * FROM gamecodetype where yahoogamecode = '${yahoogamecode}' limit 1`;
+
+    const result = await pool.query(query);
+
+    if (result.rowCount == 1) {
+      const gamecodetype = result.rows[0] as GameCodeType;
+      return gamecodetype;
+    }
+
+    return null;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+}
+
+async function insertGameCodeType(
+  yahoo_game_name: string,
+  yahoo_game_code: string
+): Promise<GameCodeType> {
+  const query = `insert into gamecodetype(yahoogamecode, yahoogamename) values ('${yahoo_game_code}', '${yahoo_game_name}') RETURNING * `;
+
+  const result = await pool.query(query);
+
+  if (result.rowCount == 1) {
+    const gamecodetype = result.rows[0] as GameCodeType;
+    return gamecodetype;
+  }
+
+  return null;
+}
+
+export default {
+  getAllCodeTypes,
+  getCodeTypeByYahooGameCode,
+  insertGameCodeType
+};

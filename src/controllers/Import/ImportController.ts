@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import leagueApi from '../../services/api/YahooApi/leagueApiService';
 import gameApi from '../../services/api/YahooApi/gameApiService';
-import { League } from '../../Types/League';
+import gameCodeTypeDao from '../../services/DataAccess/gameCodeTypeDao';
+import leagueDao from '../../services/DataAccess/leagueDao';
 
 export async function ImportLeague(
   req: Request,
@@ -9,17 +10,34 @@ export async function ImportLeague(
 ): Promise<Response> {
   const league_key = req.query.league_key.toString();
 
-  const leagueMetaDataRaw = await leagueApi.getLeagueMetaDataByLeagueKey(
+  const leagueMetadata = await leagueApi.getLeagueMetaDataByLeagueKey(
     league_key
   );
 
-  console.log(leagueMetaDataRaw.game_code);
-
-  const splitLeagueCode = league_key.split('.');
-
-  const gameMetaData = await gameApi.getGameMetaDataByGameKey(
-    splitLeagueCode[0]
+  const gameCodeType = await gameCodeTypeDao.getCodeTypeByYahooGameCode(
+    leagueMetadata.game_code
   );
+
+  if (gameCodeType == null) {
+    const league_KeySplit = league_key.split('.');
+
+    const yahooGameInfo = await gameApi.getGameMetaDataByGameKey(
+      league_KeySplit[0]
+    );
+
+    const gameCodeType = await gameCodeTypeDao.insertGameCodeType(
+      yahooGameInfo.name,
+      yahooGameInfo.code
+    );
+
+    console.log(gameCodeType);
+  }
+  const existingLeauge = await leagueDao.GetLeagueByLeagueName(
+    leagueMetadata.name
+  );
+
+  // if (existingLeauge == null) {
+  // }
 
   return res.json();
 }
