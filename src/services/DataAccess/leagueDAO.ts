@@ -37,4 +37,25 @@ const GetLeagueByLeagueName = async (
   }
 };
 
-export default { GetLeagueRecords, GetLeagueByLeagueName };
+const insertLeague = async (
+  leaguename: string,
+  gamecodetypedi: number
+): Promise<LeagueModel> => {
+  try {
+    const query = `insert into league(gamecodetypeid, leaguename) values ('${gamecodetypedi}', '${leaguename}') RETURNING * `;
+
+    const result = await pool.query(query);
+
+    if (result.rowCount == 1) {
+      const gamecodetype = result.rows[0] as LeagueModel;
+      return gamecodetype;
+    }
+
+    return null;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+export default { GetLeagueRecords, GetLeagueByLeagueName, insertLeague };

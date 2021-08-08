@@ -10,17 +10,13 @@ export async function getLeaguesByYahooGameCodes(
 }
 
 export async function getLeagueByYahooGameCode(
-  yahooApi: any,
-  gameCodes: any
+  gameCodes: string
 ): Promise<string> {
   const returnedData = await YahooFantasy.yf.user.game_leagues(gameCodes);
   return returnedData;
 }
 
-export async function getLeagueTeams(
-  yahooApi: any,
-  leaguekey: any
-): Promise<string> {
+export async function getLeagueTeams(leaguekey: string): Promise<string> {
   const returnData = await YahooFantasy.yf.league.teams(leaguekey);
   return returnData;
 }

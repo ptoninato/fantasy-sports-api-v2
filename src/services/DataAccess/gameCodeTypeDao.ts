@@ -1,6 +1,6 @@
-import { QueryResult } from 'pg';
 import pool from '../../database/db';
 import { GameCodeType } from '../../Models/GameCodeType';
+import gameApiService from '../api/YahooApi/gameApiService';
 
 async function getAllCodeTypes(): Promise<GameCodeType[]> {
   try {
@@ -15,10 +15,36 @@ async function getAllCodeTypes(): Promise<GameCodeType[]> {
   }
 }
 
+async function getOrInsertGameCodeTypeByLeagueKeyAndGameCode(
+  yahoo_game_code: string,
+  yahoo_game_name: string
+): Promise<GameCodeType> {
+  try {
+    const existingGameCodeType = await getCodeTypeByYahooGameCode(
+      yahoo_game_code
+    );
+
+    if (existingGameCodeType == null) {
+      const newGameCodeType = await insertGameCodeType(
+        yahoo_game_name,
+        yahoo_game_code
+      );
+
+      return newGameCodeType;
+    }
+
+    return existingGameCodeType;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+}
+
 async function getCodeTypeByYahooGameCode(
   yahoogamecode: string
 ): Promise<GameCodeType> {
   try {
+    console.log(yahoogamecode);
     const query = `SELECT * FROM gamecodetype where yahoogamecode = '${yahoogamecode}' limit 1`;
 
     const result = await pool.query(query);
@@ -54,5 +80,6 @@ async function insertGameCodeType(
 export default {
   getAllCodeTypes,
   getCodeTypeByYahooGameCode,
-  insertGameCodeType
+  insertGameCodeType,
+  getOrInsertGameCodeTypeByLeagueKeyAndGameCode
 };
