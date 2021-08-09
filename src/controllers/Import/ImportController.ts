@@ -19,8 +19,11 @@ export async function ImportLeague(
     league_key
   );
 
-  // console.log(leagueSettings.roster_positions);
-  // console.log(leagueSettings);
+  const league = await leagueDao.GetLeagueByLeagueName(leagueSettings.name);
+
+  //do gamecode
+
+  //do seasson
 
   return res.json();
 }

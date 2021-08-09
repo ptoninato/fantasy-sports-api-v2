@@ -1,6 +1,7 @@
 import { StatCategory } from './StateCategory';
 import { League } from './League';
 import { RosterPosition } from './RosterPosition';
+import { StatModifiers } from './StatModifiers';
 
 export interface LeagueSettingsRootObject {
   league_key: string;
@@ -65,4 +66,8 @@ export interface LeagueSettings {
   season_type: string;
   min_innings_pitched: string;
   league: League;
+  stat_modifiers: StatModifiers;
+  pickem_enabled: string;
+  uses_fractional_points: string;
+  uses_negative_points: string;
 }
