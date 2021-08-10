@@ -22,4 +22,27 @@ const GetSeasonByYahooLeagueIdAndGameCodeId = async (
   }
 };
 
-export default { GetSeasonByYahooLeagueIdAndGameCodeId };
+const GetSeasonByYahooLeagueId = async (
+  yahooleagueid: number
+): Promise<SeasonModel> => {
+  try {
+    const query = `select * from season where yahooleagueId = '${yahooleagueid}'`;
+
+    const result = await pool.query(query);
+
+    if (result.rowCount == 1) {
+      const season = result.rows[0] as SeasonModel;
+      return season;
+    }
+
+    return null;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+export default {
+  GetSeasonByYahooLeagueIdAndGameCodeId,
+  GetSeasonByYahooLeagueId
+};
