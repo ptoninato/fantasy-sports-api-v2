@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import leagueImporter from '../../services/Importers/leagueImporter';
-import leagueSettingsApiService from '../../services/api/YahooApi/leagueSettingsApiService';
 import leagueDao from '../../services/DataAccess/leagueDao';
-import SeasonDao from '../../services/DataAccess/SeasonDao';
-import leagueApiService from '../../services/api/YahooApi/leagueApiService';
+import seasonDao from '../../services/DataAccess/SeasonDao';
+import seasonImporter from '../../services/Importers/seasonImporter';
 
 export async function ImportLeague(
   req: Request,
@@ -29,16 +27,17 @@ export async function ImportSeason(
 
   const league_key = req.query.league_key.toString();
   const leagueKeySplit = league_key.split('.');
-  const gamecode = leagueKeySplit[0];
+  const yahooGameKey = leagueKeySplit[0];
   const yahooleagueId = leagueKeySplit[2];
 
-  const league = await leagueDao.GetOrImportLeague(league_key);
-
-  const season = await SeasonDao.GetSeasonByYahooLeagueId(
+  let season = await seasonDao.GetSeasonByYahooLeagueId(
     <number>(<unknown>yahooleagueId)
   );
 
-  console.log(league);
+  if (season == null) {
+    season = await seasonImporter.importSeason(league_key);
+  }
+
   console.log(season);
 
   return res.json();
