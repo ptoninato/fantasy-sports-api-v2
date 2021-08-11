@@ -17,7 +17,7 @@ async function getGameKeyByYahooGameKey(
     return gamecode;
   }
 
-  return null;
+  return 1;
 }
 
 async function getOrInsertGameKey(league_key: string): Promise<GameKeyModel> {
