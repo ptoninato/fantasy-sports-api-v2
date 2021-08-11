@@ -2,8 +2,7 @@ import { League } from '../../../Types/League';
 import YahooFantasy from '../YahooFantasyWrapper';
 
 export async function getLeaguesByYahooGameCodes(
-  yahooApi: any,
-  gameCodes: any
+  gameCodes: string
 ): Promise<string> {
   const returnedData = await YahooFantasy.yf.user.game_leagues(gameCodes);
   return returnedData;

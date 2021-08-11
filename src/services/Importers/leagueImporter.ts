@@ -4,12 +4,11 @@ import gameCodeTypeDAO from '../DataAccess/gameCodeTypeDao';
 import leagueApiService from '../api/YahooApi/leagueApiService';
 import gameApiService from '../api/YahooApi/gameApiService';
 
-async function importLeague(leagueGameCode: string): Promise<LeagueModel> {
-  const league_key = leagueGameCode.toString();
+async function importLeague(league_key: string): Promise<LeagueModel> {
   const leagueKeySplit = league_key.split('.');
 
   const leagueMetadata = await leagueApiService.getLeagueMetaDataByLeagueKey(
-    leagueGameCode
+    league_key
   );
   const gameMetaData = await gameApiService.getGameMetaDataByGameKey(
     leagueKeySplit[0]

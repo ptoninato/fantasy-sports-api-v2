@@ -11,4 +11,12 @@ ImportRouter.get(
   }
 );
 
+ImportRouter.get(
+  '/importSeason',
+  (req: Request, res: Response, yf: any): any => {
+    ImportController.ImportSeason(req, res);
+    return res.json();
+  }
+);
+
 export default ImportRouter;
