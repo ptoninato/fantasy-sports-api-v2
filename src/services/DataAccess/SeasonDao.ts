@@ -1,5 +1,7 @@
 import pool from '../../database/db';
 import { SeasonModel } from '../../Models/SeasonModel';
+import { LeagueKeyParam } from '../../Types/LeagueKeyParam';
+import seasonImporter from '../Importers/seasonImporter';
 
 const GetSeasonByYahooLeagueIdAndGameCodeId = async (
   yahooleagueid: number,
@@ -42,6 +44,25 @@ const GetSeasonByYahooLeagueId = async (
   }
 };
 
+const GetOrImportSeason = async (
+  leagueKeyParam: LeagueKeyParam
+): Promise<SeasonModel> => {
+  try {
+    let season = await GetSeasonByYahooLeagueId(
+      <number>(<unknown>leagueKeyParam.league_id)
+    );
+
+    if (season == null) {
+      season = await seasonImporter.importSeason(leagueKeyParam.league_key);
+    }
+
+    return season;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 const insertSeason = async (seasonModel: SeasonModel): Promise<SeasonModel> => {
   const query = `INSERT INTO public.season
       (leagueid, gamecodeid, yahooleagueid, startdate, enddate, seasonyear, scoringtype, firstweek, lastweek, tradeenddate, playoffstartweek)
@@ -61,6 +82,7 @@ const insertSeason = async (seasonModel: SeasonModel): Promise<SeasonModel> => {
 };
 
 export default {
+  GetOrImportSeason,
   GetSeasonByYahooLeagueIdAndGameCodeId,
   GetSeasonByYahooLeagueId,
   insertSeason
