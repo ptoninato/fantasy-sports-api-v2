@@ -5,6 +5,9 @@ import SeasonDao from '../../services/DataAccess/SeasonDao';
 import seasonDao from '../../services/DataAccess/SeasonDao';
 import seasonImporter from '../../services/Importers/seasonImporter';
 import transactionApiSerivce from '../../services/api/YahooApi/transactionApiService';
+import leagueTeamApiService from '../../services/api/YahooApi/leagueTeamsApiService';
+import ownerDao from '../../services/DataAccess/ownerDao';
+import YahooFantasyWrapper from '../../services/api/YahooFantasyWrapper';
 
 export async function ImportLeague(
   req: Request,
@@ -57,18 +60,23 @@ export async function ImportTransactions(
 
   const league = await leagueDao.GetOrImportLeague(leagueKeyParam.league_key);
 
-  const season = await SeasonDao.GetOrImportSeason(leagueKeyParam);
+  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
-  const transactions = await transactionApiSerivce.GetTransactionsByLeagueKey(
-    leagueKeyParam.league_key
+  const teams = await leagueTeamApiService.GetLeagueTeamsByLeagueKey(
+    leagueKeyParam
   );
 
-  const transaaction = transactions.transactions[0];
+  for (let i = 0; i < teams.teams.length; i++) {
+    const team = teams.teams[i];
+    const teamOwnerFromYahoo = team.managers[0];
 
-  console.log(transaaction.players);
+    console.log(teamOwnerFromYahoo);
 
-  console.log(league);
-  console.log(season);
+    const teamOwnerFromDb = await ownerDao.GetOrImportOwner(
+      teamOwnerFromYahoo,
+      league
+    );
+  }
 
   return res.json();
 }
