@@ -7,7 +7,7 @@ import seasonImporter from '../../services/Importers/seasonImporter';
 import transactionApiSerivce from '../../services/api/YahooApi/transactionApiService';
 import leagueTeamApiService from '../../services/api/YahooApi/leagueTeamsApiService';
 import ownerDao from '../../services/DataAccess/ownerDao';
-import YahooFantasyWrapper from '../../services/api/YahooFantasyWrapper';
+import fantasyTeamDao from '../../services/DataAccess/fantasyTeamDao';
 
 export async function ImportLeague(
   req: Request,
@@ -70,11 +70,16 @@ export async function ImportTransactions(
     const team = teams.teams[i];
     const teamOwnerFromYahoo = team.managers[0];
 
-    console.log(teamOwnerFromYahoo);
-
     const teamOwnerFromDb = await ownerDao.GetOrImportOwner(
       teamOwnerFromYahoo,
       league
+    );
+
+    const fantasyTeam = await fantasyTeamDao.GetOrImportFantasyTeam(
+      teamOwnerFromDb,
+      league,
+      season,
+      team
     );
   }
 

@@ -1,4 +1,4 @@
-export interface Fantasyteam {
+export interface FantasyTeamModel {
   fantasyteamid: number;
   leagueid: number;
   seasonid: number;
