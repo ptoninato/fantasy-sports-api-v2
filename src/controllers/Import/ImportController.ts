@@ -61,9 +61,30 @@ export async function ImportTransactions(
     leagueKeyParam
   );
 
-  console.log(transactions.transactions[0]);
+  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
-  console.log(transactions.transactions[0].players);
+  console.log(transactions.transactions[0].players[0]);
+
+  for (let i = 0; i < transactions.transactions.length; i++) {
+    const transaction = transactions.transactions[i];
+
+    for (let x = 0; x < transaction.players.length; x++) {
+      const player = transaction.players[x];
+
+      if (player.display_position.length > 2) {
+        console.log(player);
+      }
+    }
+
+    // get or import transcation type
+
+    // for player in trasaction
+
+    // get or import player
+    // will require get or import position type
+
+    // import transaction
+  }
 
   return res.json();
 }
