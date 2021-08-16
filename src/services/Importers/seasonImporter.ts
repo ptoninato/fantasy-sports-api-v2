@@ -33,7 +33,7 @@ async function importSeason(league_key: string): Promise<SeasonModel> {
     (<unknown>leagueSettings.settings.playoff_start_week)
   );
 
-  const season = seasonDao.insertSeason(seasonModel);
+  const season = await seasonDao.insertSeason(seasonModel);
 
   return season;
 

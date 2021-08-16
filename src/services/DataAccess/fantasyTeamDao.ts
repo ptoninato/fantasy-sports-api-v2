@@ -35,8 +35,6 @@ const GetOrImportFantasyTeam = async (
   yahooTeam: Team
 ): Promise<FantasyTeamModel> => {
   try {
-    console.log(season);
-
     let fantasyTeamModel = await GetTeamBySeasonAndTeamId(
       league,
       owner,
@@ -77,8 +75,6 @@ VALUES(${league.leagueid}, ${season.seasonid}, ${owner.ownerid}, ${team.team_id}
 
     if (result.rowCount == 1) {
       const team = result.rows[0] as FantasyTeamModel;
-
-      console.log(team);
       return team;
     }
 

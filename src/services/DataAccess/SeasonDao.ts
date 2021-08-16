@@ -64,10 +64,22 @@ const GetOrImportSeason = async (
 };
 
 const insertSeason = async (seasonModel: SeasonModel): Promise<SeasonModel> => {
-  const query = `INSERT INTO public.season
+  const playoffStartWeek =
+    seasonModel.playoffstartweek == undefined
+      ? null
+      : seasonModel.playoffstartweek;
+
+  const tradeenddate =
+    seasonModel.tradeenddate.length === 0
+      ? null
+      : `'${seasonModel.tradeenddate}'`;
+
+  let query = `INSERT INTO public.season
       (leagueid, gamecodeid, yahooleagueid, startdate, enddate, seasonyear, scoringtype, firstweek, lastweek, tradeenddate, playoffstartweek)
-      VALUES(${seasonModel.leagueid}, ${seasonModel.gamecodeid}, ${seasonModel.yahooleagueid}, '${seasonModel.startdate}', '${seasonModel.enddate}', '${seasonModel.seasonyear}', '${seasonModel.scoringtype}', ${seasonModel.firstweek}, ${seasonModel.lastweek}, '${seasonModel.tradeenddate}', ${seasonModel.playoffstartweek});
+      VALUES(${seasonModel.leagueid}, ${seasonModel.gamecodeid}, ${seasonModel.yahooleagueid}, '${seasonModel.startdate}', '${seasonModel.enddate}', '${seasonModel.seasonyear}', '${seasonModel.scoringtype}', ${seasonModel.firstweek}, ${seasonModel.lastweek}, ${tradeenddate}, ${playoffStartWeek}) RETURNING *;
 `;
+
+  query = query.replace(/undefined/g, null);
 
   const result = await pool.query(query);
 

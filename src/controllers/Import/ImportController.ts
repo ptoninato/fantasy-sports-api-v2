@@ -52,8 +52,6 @@ export async function ImportTransactions(
   req: Request,
   res: Response
 ): Promise<Response> {
-  console.log('here');
-
   const league_key = req.query.league_key.toString();
 
   const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
@@ -65,22 +63,23 @@ export async function ImportTransactions(
   const teams = await leagueTeamApiService.GetLeagueTeamsByLeagueKey(
     leagueKeyParam
   );
+  if (season != null && season != undefined) {
+    for (let i = 0; i < teams.teams.length; i++) {
+      const team = teams.teams[i];
+      const teamOwnerFromYahoo = team.managers[0];
 
-  for (let i = 0; i < teams.teams.length; i++) {
-    const team = teams.teams[i];
-    const teamOwnerFromYahoo = team.managers[0];
+      const teamOwnerFromDb = await ownerDao.GetOrImportOwner(
+        teamOwnerFromYahoo,
+        league
+      );
 
-    const teamOwnerFromDb = await ownerDao.GetOrImportOwner(
-      teamOwnerFromYahoo,
-      league
-    );
-
-    const fantasyTeam = await fantasyTeamDao.GetOrImportFantasyTeam(
-      teamOwnerFromDb,
-      league,
-      season,
-      team
-    );
+      const fantasyTeam = await fantasyTeamDao.GetOrImportFantasyTeam(
+        teamOwnerFromDb,
+        league,
+        season,
+        team
+      );
+    }
   }
 
   return res.json();
