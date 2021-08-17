@@ -30,9 +30,10 @@ const InsertPlayer = async (
   league: LeagueModel
 ): Promise<PlayerModel> => {
   try {
-    const lastName =
-      player.name.last.length == 0 ? 'Defense' : player.name.last;
+    let lastName = player.name.last.length == 0 ? 'Defense' : player.name.last;
+    lastName = lastName.replace(/'/g, "''");
 
+    const firstName = player.name.first.replace(/'/g, "''");
     const positionTypeModel = await positionTypeDao.GetOrImportPositionType(
       player.position_type,
       league.gamecodetypeid
@@ -40,7 +41,7 @@ const InsertPlayer = async (
 
     const query = `INSERT INTO public.player
 (gamecodetypeid, yahooplayerid, firstname, lastname, positiontypeid)
-VALUES(${league.gamecodetypeid}, ${player.player_id}, '${player.name.first}', '${lastName}', ${positionTypeModel.positiontypeid}) RETURNING *`;
+VALUES(${league.gamecodetypeid}, ${player.player_id}, '${firstName}', '${lastName}', ${positionTypeModel.positiontypeid}) RETURNING *`;
 
     const result = await pool.query(query);
 

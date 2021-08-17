@@ -5,6 +5,27 @@ import { OwnerModel } from '../../Models/Owner';
 import { SeasonModel } from '../../Models/SeasonModel';
 import { Team } from '../../Types/Team';
 
+const GetTeamBySeasonIdAndTeamId = async (
+  seasonid: number,
+  teamid: number
+): Promise<FantasyTeamModel> => {
+  try {
+    const query = `select * from fantasyteam where seasonid = ${seasonid} and yahooteamid = ${teamid} limit 1`;
+
+    const result = await pool.query(query);
+
+    if (result.rowCount == 1) {
+      const team = result.rows[0] as FantasyTeamModel;
+      return team;
+    }
+
+    return null;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 const GetTeamBySeasonAndTeamId = async (
   league: LeagueModel,
   owner: OwnerModel,
@@ -86,6 +107,7 @@ VALUES(${league.leagueid}, ${season.seasonid}, ${owner.ownerid}, ${team.team_id}
 };
 
 export default {
+  GetTeamBySeasonIdAndTeamId,
   GetTeamBySeasonAndTeamId,
   GetOrImportFantasyTeam,
   InsertFantasyTeam
