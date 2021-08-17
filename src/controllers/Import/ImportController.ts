@@ -9,6 +9,7 @@ import leagueTeamApiService from '../../services/api/YahooApi/leagueTeamsApiServ
 import ownerDao from '../../services/DataAccess/ownerDao';
 import fantasyTeamDao from '../../services/DataAccess/fantasyTeamDao';
 import leagueTeamsApiService from '../../services/api/YahooApi/leagueTeamsApiService';
+import PlayerDao from '../../services/DataAccess/PlayerDao';
 
 export async function ImportLeague(
   req: Request,
@@ -63,17 +64,20 @@ export async function ImportTransactions(
 
   const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
+  const league = await leagueDao.GetOrImportLeague(leagueKeyParam.league_key);
   console.log(transactions.transactions[0].players[0]);
 
-  for (let i = 0; i < transactions.transactions.length; i++) {
+  for (let i = 0; i < 1; i++) {
     const transaction = transactions.transactions[i];
 
     for (let x = 0; x < transaction.players.length; x++) {
-      const player = transaction.players[x];
+      const yahooPlayer = transaction.players[x];
 
-      if (player.display_position.length > 2) {
-        console.log(player);
-      }
+      console.log(yahooPlayer);
+
+      const player = await PlayerDao.GetOrImportPlayer(yahooPlayer, league);
+
+      console.log(player);
     }
 
     // get or import transcation type

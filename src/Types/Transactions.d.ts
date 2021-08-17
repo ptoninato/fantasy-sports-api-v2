@@ -1,30 +1,4 @@
-export interface PlayerName {
-  full: string;
-  first: string;
-  last: string;
-  ascii_first: string;
-  ascii_last: string;
-}
-
-export interface TransactionDetails {
-  type: string;
-  source_type: string;
-  destination_type: string;
-  destination_team_key: string;
-  destination_team_name: string;
-  source_team_key: string;
-  source_team_name: string;
-}
-
-export interface Player {
-  player_key: string;
-  player_id: string;
-  name: PlayerName;
-  editorial_team_abbr: string;
-  display_position: string;
-  position_type: string;
-  transaction: TransactionDetails;
-}
+import { Player } from './Player';
 
 export interface Transaction {
   players: Player[];
