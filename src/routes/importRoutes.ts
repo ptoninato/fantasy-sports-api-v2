@@ -19,4 +19,12 @@ ImportRouter.get(
   }
 );
 
+ImportRouter.get(
+  '/importtransactions',
+  (req: Request, res: Response): Response => {
+    ImportController.ImportTransactions(req, res);
+    return res.json();
+  }
+);
+
 export default ImportRouter;
