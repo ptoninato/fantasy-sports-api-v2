@@ -15,6 +15,9 @@ import fantasyTeamImporter from '../../services/Importers/fantasyTeamImporter';
 import transactionDao from '../../services/DataAccess/transactionDao';
 import TreamKeyHelper from '../../Helpers/TeamKeyHelper';
 import TeamKeyHelper from '../../Helpers/TeamKeyHelper';
+import transactionImporter from '../../services/Importers/transactionImporter';
+import rosterPostionDao from '../../services/DataAccess/rosterPostionDao';
+import seasonPositionImporter from '../../services/Importers/seasonPositionImporter';
 
 export async function ImportLeague(
   req: Request,
@@ -63,85 +66,20 @@ export async function ImportTransactions(
 
   const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
 
-  await fantasyTeamImporter.ImportAllTeamsForLeague(leagueKeyParam);
+  await transactionImporter.ImportTransactionsForLeague(leagueKeyParam);
 
-  const transactions = await transactionApiSerivce.GetTransactionsByLeagueKey(
-    leagueKeyParam
-  );
+  return res.json();
+}
 
-  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
+export async function ImportRosterPositions(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
 
-  const league = await leagueDao.GetOrImportLeague(leagueKeyParam.league_key);
-  console.log(transactions.transactions[0].players[0]);
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
 
-  for (let i = 0; i < transactions.transactions.length; i++) {
-    const transaction = transactions.transactions[i];
-
-    for (let x = 0; x < transaction.players.length; x++) {
-      const playerTransaction = transaction.players[x];
-
-      const player = await PlayerDao.GetOrImportPlayer(
-        playerTransaction,
-        league
-      );
-
-      const transactionType = await transactionTypeDao.GetOrImportTransactionType(
-        playerTransaction.transaction.type
-      );
-
-      let tradeFromTeam = null;
-      let fantasyTeam = null;
-      if (transactionType.transactiontypename == 'trade') {
-        const teamKeyParam = await TreamKeyHelper.SplitTeamKey(
-          playerTransaction.transaction.source_team_key
-        );
-
-        tradeFromTeam = await fantasyTeamDao.GetTeamBySeasonIdAndTeamId(
-          season.seasonid,
-          <number>(<unknown>teamKeyParam.team_key)
-        );
-
-        const fantasyTeamKey = await TreamKeyHelper.SplitTeamKey(
-          playerTransaction.transaction.destination_team_key
-        );
-
-        fantasyTeam = await fantasyTeamDao.GetTeamBySeasonIdAndTeamId(
-          season.seasonid,
-          <number>(<unknown>fantasyTeamKey.team_key)
-        );
-      } else if (transactionType.transactiontypename == 'add') {
-        const fantasyTeamKey = await TreamKeyHelper.SplitTeamKey(
-          playerTransaction.transaction.destination_team_key
-        );
-
-        fantasyTeam = await fantasyTeamDao.GetTeamBySeasonIdAndTeamId(
-          season.seasonid,
-          <number>(<unknown>fantasyTeamKey.team_key)
-        );
-      } else if (transactionType.transactiontypename == 'drop') {
-        const fantasyTeamKey = await TreamKeyHelper.SplitTeamKey(
-          playerTransaction.transaction.source_team_key
-        );
-
-        fantasyTeam = await fantasyTeamDao.GetTeamBySeasonIdAndTeamId(
-          season.seasonid,
-          <number>(<unknown>fantasyTeamKey.team_key)
-        );
-      }
-
-      const transactionModel = await transactionDao.GetOrImportTransaction(
-        season,
-        player,
-        transaction,
-        transactionType,
-        fantasyTeam,
-        tradeFromTeam
-      );
-    }
-
-    // get or import transcation type
-    // import transaction
-  }
+  await seasonPositionImporter.importSeasonPositions(leagueKeyParam);
 
   return res.json();
 }

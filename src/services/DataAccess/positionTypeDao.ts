@@ -9,7 +9,7 @@ async function GetOrImportPositionType(
 
   let result = await pool.query(query);
 
-  if (result.rowCount == 0) {
+  if (result.rowCount == 0 && yahoopositionname != undefined) {
     query = `INSERT INTO public.positiontype
 (yahoopositiontype, gamecodetypeid)
 VALUES('${yahoopositionname}', ${gamecodetypeid}) RETURNING *`;
