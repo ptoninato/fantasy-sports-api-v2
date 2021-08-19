@@ -7,6 +7,7 @@ import LeagueKeyHelper from '../../Helpers/LeagueKeyHelper';
 import positionTypeDao from '../DataAccess/positionTypeDao';
 import rosterPostionDao from '../DataAccess/rosterPostionDao';
 import { LeagueKeyParam } from '../../Types/LeagueKeyParam';
+import seasonPositionDao from '../DataAccess/seasonPositionDao';
 
 async function importSeasonPositions(
   leagueKeyParam: LeagueKeyParam
@@ -41,7 +42,13 @@ async function importSeasonPositions(
       positiontypeid
     );
 
-    console.log(rosterPostionModel);
+    const seasponPositionModel = await seasonPositionDao.GetOrImportSeasonPosition(
+      season,
+      rosterPostionModel,
+      position
+    );
+
+    console.log(seasponPositionModel);
   }
 }
 
