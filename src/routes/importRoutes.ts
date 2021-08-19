@@ -27,4 +27,12 @@ ImportRouter.get(
   }
 );
 
+ImportRouter.get(
+  '/importrosterpositions',
+  (req: Request, res: Response): Response => {
+    ImportController.ImportRosterPositions(req, res);
+    return res.json();
+  }
+);
+
 export default ImportRouter;
