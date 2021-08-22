@@ -4,9 +4,27 @@ import { SeasonModel } from '../../Models/SeasonModel';
 import { SeasonStatCategoryTypeModel } from '../../Models/SeasonStatCategoryTypeModel';
 import { SeasonStatCategoryModel } from '../../Models/StatCategoryModel';
 import { StatCategory } from '../../Types/StatCategory';
+import { StatPositionType } from '../../Types/StatPositionType';
 import seasonStatCategoryTypeDao from './seasonStatCategoryTypeDao';
 
-async function GetOrImportStatCategoryType(
+async function GetStatCategoryForCategoryType(
+  yahoocategoryid: number,
+  season: SeasonModel
+): Promise<SeasonStatCategoryModel> {
+  const seasonStatCategoryTypeModel = await seasonStatCategoryTypeDao.GetStatCategoryTypeByYahooTypeId(
+    yahoocategoryid
+  );
+
+  const query = `select * from seasonstatcategory where seasonstatcategoryid = ${seasonStatCategoryTypeModel.seasonstatcategorytypeid} and seasonid = ${season.seasonid} limit 1`;
+
+  const result = await pool.query(query);
+
+  const statCategoryModel = result.rows[0] as SeasonStatCategoryModel;
+
+  return statCategoryModel;
+}
+
+async function GetOrImportStatCategory(
   statCategory: StatCategory,
   season: SeasonModel,
   statCategoryType: SeasonStatCategoryTypeModel
@@ -31,5 +49,6 @@ VALUES(${statCategoryType.seasonstatcategorytypeid}, ${season.seasonid}, ${enabl
 }
 
 export default {
-  GetOrImportStatCategoryType
+  GetOrImportStatCategory,
+  GetStatCategoryForCategoryType
 };

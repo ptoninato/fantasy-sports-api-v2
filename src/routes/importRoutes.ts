@@ -43,4 +43,12 @@ ImportRouter.get(
   }
 );
 
+ImportRouter.get(
+  '/importstatcategorymodifiers',
+  (req: Request, res: Response): Response => {
+    ImportController.ImportStatCategoryModifiers(req, res);
+    return res.json();
+  }
+);
+
 export default ImportRouter;

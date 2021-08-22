@@ -32,7 +32,7 @@ async function importStatCategory(
       positionTypeModel
     );
 
-    const statCategoryModel = await seasonStatCategoryDao.GetOrImportStatCategoryType(
+    const statCategoryModel = await seasonStatCategoryDao.GetOrImportStatCategory(
       statCategory,
       season,
       statCategoryType

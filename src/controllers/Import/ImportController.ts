@@ -23,6 +23,8 @@ import statCategoryTypeDao from '../../services/DataAccess/seasonStatCategoryTyp
 import positionTypeDao from '../../services/DataAccess/positionTypeDao';
 import seasonStatCategoryDao from '../../services/DataAccess/seasonStatCategoryDao';
 import statCategoryImport from '../../services/Importers/statCategoryImport';
+import leagueApiService from '../../services/api/YahooApi/leagueApiService';
+import seasonStatCategoryTypeDao from '../../services/DataAccess/seasonStatCategoryTypeDao';
 
 export async function ImportLeague(
   req: Request,
@@ -99,5 +101,37 @@ export async function ImportStatCategories(
 
   await statCategoryImport.importStatCategory(leagueKeyParam);
 
+  return res.json();
+}
+
+export async function ImportStatCategoryModifiers(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  const leagueSettings = await leagueSettingsApiService.getLeagueSettingsByLeagueKey(
+    leagueKeyParam.league_key
+  );
+
+  const season = await SeasonDao.GetOrImportSeason(leagueKeyParam);
+
+  if (leagueSettings.settings.stat_modifiers) {
+    const importStatCategoryModifiers =
+      leagueSettings.settings.stat_modifiers.stats;
+
+    for (let i = 0; i <= importStatCategoryModifiers.length - 1; i++) {
+      console.log(`${i}/${importStatCategoryModifiers.length}`);
+
+      const statModifier = importStatCategoryModifiers[i].stat;
+      const statCategoryId = statModifier.stat_id;
+      const statCategory = await seasonStatCategoryDao.GetStatCategoryForCategoryType(
+        statCategoryId,
+        season
+      );
+    }
+  }
   return res.json();
 }
