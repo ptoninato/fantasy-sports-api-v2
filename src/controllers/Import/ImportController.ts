@@ -18,6 +18,10 @@ import TeamKeyHelper from '../../Helpers/TeamKeyHelper';
 import transactionImporter from '../../services/Importers/transactionImporter';
 import rosterPostionDao from '../../services/DataAccess/rosterPostionDao';
 import seasonPositionImporter from '../../services/Importers/seasonPositionImporter';
+import leagueSettingsApiService from '../../services/api/YahooApi/leagueSettingsApiService';
+import statCategoryTypeDao from '../../services/DataAccess/seasonStatCategoryTypeDao';
+import positionTypeDao from '../../services/DataAccess/positionTypeDao';
+import seasonStatCategoryDao from '../../services/DataAccess/seasonStatCategoryDao';
 
 export async function ImportLeague(
   req: Request,
@@ -80,6 +84,49 @@ export async function ImportRosterPositions(
   const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
 
   await seasonPositionImporter.importSeasonPositions(leagueKeyParam);
+
+  return res.json();
+}
+
+export async function ImportStatCategories(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  const leagueSettings = await leagueSettingsApiService.getLeagueSettingsByLeagueKey(
+    leagueKeyParam.league_key
+  );
+  const league = await leagueDao.GetOrImportLeague(leagueKeyParam.league_key);
+
+  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
+
+  const stateCategories = leagueSettings.settings.stat_categories;
+
+  for (let i = 0; i < stateCategories.length; i++) {
+    const gameCodeTypeId = league.gamecodetypeid;
+    const statCategory = stateCategories[i];
+
+    const positionTypeModel = await positionTypeDao.GetOrImportPositionType(
+      statCategory.position_type,
+      gameCodeTypeId
+    );
+    console.log(positionTypeModel);
+    const statCategoryType = await statCategoryTypeDao.GetOrImportStatCategoryType(
+      statCategory,
+      positionTypeModel
+    );
+    console.log(statCategoryType);
+    const statCategoryModel = await seasonStatCategoryDao.GetOrImportStatCategoryType(
+      statCategory,
+      season,
+      statCategoryType
+    );
+
+    console.log(statCategoryModel);
+  }
 
   return res.json();
 }
