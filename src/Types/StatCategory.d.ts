@@ -2,7 +2,7 @@ import { StatPositionType } from './StatPositionType';
 
 export interface StatCategory {
   stat_id: number;
-  enabled: string;
+  enabled: bool;
   name: string;
   display_name: string;
   sort_order: string;

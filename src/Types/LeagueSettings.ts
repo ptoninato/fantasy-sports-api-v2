@@ -1,4 +1,4 @@
-import { StatCategory } from './StateCategory';
+import { StatCategory } from './StatCategory';
 import { League } from './League';
 import { RosterPosition } from './RosterPosition';
 import { StatModifiers } from './StatModifiers';
