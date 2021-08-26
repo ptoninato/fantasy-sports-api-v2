@@ -25,6 +25,7 @@ import seasonStatCategoryDao from '../../services/DataAccess/seasonStatCategoryD
 import statCategoryImport from '../../services/Importers/statCategoryImport';
 import leagueApiService from '../../services/api/YahooApi/leagueApiService';
 import seasonStatCategoryTypeDao from '../../services/DataAccess/seasonStatCategoryTypeDao';
+import seasonStatModiferDao from '../../services/DataAccess/seasonStatModiferDao';
 
 export async function ImportLeague(
   req: Request,
@@ -115,22 +116,33 @@ export async function ImportStatCategoryModifiers(
   const leagueSettings = await leagueSettingsApiService.getLeagueSettingsByLeagueKey(
     leagueKeyParam.league_key
   );
-
+  const league = await leagueDao.GetOrImportLeague(leagueKeyParam.league_key);
   const season = await SeasonDao.GetOrImportSeason(leagueKeyParam);
+
+  await statCategoryImport.importStatCategory(leagueKeyParam);
 
   if (leagueSettings.settings.stat_modifiers) {
     const importStatCategoryModifiers =
       leagueSettings.settings.stat_modifiers.stats;
 
     for (let i = 0; i <= importStatCategoryModifiers.length - 1; i++) {
-      console.log(`${i}/${importStatCategoryModifiers.length}`);
-
       const statModifier = importStatCategoryModifiers[i].stat;
       const statCategoryId = statModifier.stat_id;
+      console.log(statModifier);
+
       const statCategory = await seasonStatCategoryDao.GetStatCategoryForCategoryType(
         statCategoryId,
-        season
+        season,
+        league.gamecodetypeid
       );
+      console.log(statCategory);
+
+      const result = await seasonStatModiferDao.GetOrImportStatCategoryModifier(
+        statCategory,
+        <number>(<unknown>statModifier.value)
+      );
+
+      console.log(result);
     }
   }
   return res.json();

@@ -5,9 +5,10 @@ import { SeasonStatCategoryModel } from '../../Models/StatCategoryModel';
 import { StatCategory } from '../../Types/StatCategory';
 
 async function GetStatCategoryTypeByYahooTypeId(
-  yahoocategoryid: number
+  yahoocategoryid: number,
+  gamecodetypeid: number
 ): Promise<SeasonStatCategoryTypeModel> {
-  const query = `select * from seasonstatcategorytype where yahoocategoryid = ${yahoocategoryid} limit 1`;
+  const query = `select * from seasonstatcategorytype where yahoocategoryid = ${yahoocategoryid} and gamecodetypeid = ${gamecodetypeid} limit 1`;
 
   const result = await pool.query(query);
 
