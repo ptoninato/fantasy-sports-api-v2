@@ -118,3 +118,17 @@ export async function ImportStatCategoryModifiers(
 
   return res.json();
 }
+
+export async function ImportMatchups(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
+
+  for (let i = 1; i <= season.lastweek; i++) {}
+  return res.json();
+}
