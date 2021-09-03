@@ -1,7 +1,21 @@
 import pool from '../../database/db';
 import { PositionTypeModel } from '../../Models/PositionTypeModel';
 import { SeasonStatCategoryTypeModel } from '../../Models/SeasonStatCategoryTypeModel';
+import { SeasonStatCategoryModel } from '../../Models/StatCategoryModel';
 import { StatCategory } from '../../Types/StatCategory';
+
+async function GetStatCategoryTypeByYahooTypeId(
+  yahoocategoryid: number,
+  gamecodetypeid: number
+): Promise<SeasonStatCategoryTypeModel> {
+  const query = `select * from seasonstatcategorytype where yahoocategoryid = ${yahoocategoryid} and gamecodetypeid = ${gamecodetypeid} limit 1`;
+
+  const result = await pool.query(query);
+
+  const statCategoryTypeModel = result.rows[0] as SeasonStatCategoryTypeModel;
+
+  return statCategoryTypeModel;
+}
 
 async function GetOrImportStatCategoryType(
   statCategory: StatCategory,
@@ -24,5 +38,6 @@ VALUES(${statCategory.stat_id}, '${statCategory.name}', '${statCategory.display_
 }
 
 export default {
-  GetOrImportStatCategoryType
+  GetOrImportStatCategoryType,
+  GetStatCategoryTypeByYahooTypeId
 };
