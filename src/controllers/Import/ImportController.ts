@@ -136,6 +136,6 @@ export async function ImportMatchups(
   await fantasyTeamImporter.ImportAllTeamsForLeague(leagueKeyParam);
 
   await matchupImporter.ImportLeagueMatchupsForEachWeek(leagueKeyParam);
-
+  console.log('Import Complete');
   return res.json();
 }

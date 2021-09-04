@@ -12,4 +12,5 @@ export interface Matchup {
   is_tied: number;
   winner_team_key: string;
   teams: Team[];
+  stat_winners: StatWinner[];
 }

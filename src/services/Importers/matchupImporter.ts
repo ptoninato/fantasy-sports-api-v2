@@ -3,19 +3,22 @@ import fantasyTeamDao from '../../services/DataAccess/fantasyTeamDao';
 import fantasyTeamImporter from '../../services/Importers/fantasyTeamImporter';
 import scoreboardApiService from '../../services/api/YahooApi/scoreboardApiService';
 import SeasonWeekDao from '../../services/DataAccess/SeasonWeekDao';
-import { Team } from '../../Types/Scoreboard';
+import { MatchupGrade, Team } from '../../Types/Scoreboard';
 import { MatchupModel } from '../../Models/MatchupModel';
 import matchupDao from '../../services/DataAccess/matchupDao';
 import { LeagueKeyParam } from '../../Types/LeagueKeyParam';
 import { Matchup } from '../../Types/Matchup';
 import { SeasonModel } from '../../Models/SeasonModel';
 import { SeasonWeekModel } from '../../Models/SeasonWeekModel';
+import matchupGradeTypeDao from '../DataAccess/matchupGradeTypeDao';
+import { MatchupTeamModel } from '../../Models/MatchupTeamModel';
+import matchupTeamDao from '../DataAccess/matchupTeamDao';
 
 async function ImportMatchup(
   matchup: Matchup,
   season: SeasonModel,
   seasonWeek: SeasonWeekModel
-): Promise<void> {
+): Promise<MatchupModel> {
   const isTied = matchup.is_tied === 1;
 
   let team1;
@@ -81,7 +84,7 @@ async function ImportMatchup(
 
   const matchupResult = await matchupDao.GetOrImportMatchup(matchupForDb);
 
-  console.log(matchupResult);
+  return matchupResult;
 }
 
 async function ImportLeagueMatchupsForEachWeek(
@@ -111,11 +114,58 @@ async function ImportLeagueMatchupsForEachWeek(
       for (let y = 0; y < matchupFromYahoo.teams.length; y++) {
         const team = matchupFromYahoo.teams[y] as Team;
 
-        const matchupGrade = matchupFromYahoo.matchup_grades.filter(
-          (value) => value.team_key == team.team_key
+        let matchupGradeTypeModel;
+
+        if (matchupFromYahoo.matchup_grades != null) {
+          const matchupGrade = matchupFromYahoo.matchup_grades.filter(
+            (value) => value.team_key == team.team_key
+          )[0] as MatchupGrade;
+
+          matchupGradeTypeModel = await matchupGradeTypeDao.GetOrImportMatchupGradeType(
+            matchupGrade.grade
+          );
+        }
+
+        const fantasyTeam = await fantasyTeamDao.GetTeamBySeasonIdAndTeamId(
+          season.seasonid,
+          <number>(<unknown>team.team_id)
         );
 
-        console.log(matchupGrade);
+        const matchupTeam = {} as MatchupTeamModel;
+
+        matchupTeam.fantasyteamid = fantasyTeam.fantasyteamid;
+        matchupTeam.matchupid = matchupModel.matchupid;
+        matchupTeam.pointsfor = <number>(<unknown>team.points.total);
+
+        const projectedPoints =
+          team.projected_points != null
+            ? <number>(<unknown>team.projected_points?.total)
+            : null;
+
+        matchupTeam.projectedpoitsfor = projectedPoints;
+
+        matchupTeam.matchupgradetypeid =
+          matchupGradeTypeModel?.matchupgradetypeid ?? null;
+
+        const matchupDb = await matchupTeamDao.GetOrImportMatchupTeam(
+          matchupTeam
+        );
+
+        console.log(matchupDb);
+      }
+
+      const tiedScores = matchupFromYahoo.stat_winners.filter(
+        (value) => value.stat_winner.is_tied === 1
+      );
+      if (tiedScores.length > 0) {
+        const newTiedMatchup = {} as MatchupTeamModel;
+        newTiedMatchup.matchupid = matchupModel.matchupid;
+        newTiedMatchup.tiedpoints = tiedScores.length;
+        const tiedMatchup = await matchupTeamDao.GetOrImportMatchupTiedScores(
+          newTiedMatchup
+        );
+
+        console.log(tiedMatchup);
       }
     }
   }

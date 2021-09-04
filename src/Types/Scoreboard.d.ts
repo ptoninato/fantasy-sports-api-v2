@@ -1,5 +1,15 @@
 import { Matchup } from './Matchup';
 
+export interface StatWinner2 {
+  stat_id: string;
+  winner_team_key: string;
+  is_tied?: number;
+}
+
+export interface StatWinner {
+  stat_winner: StatWinner2;
+}
+
 export interface MatchupGrade {
   team_key: string;
   grade: string;
@@ -33,6 +43,11 @@ export interface Points {
   total: string;
 }
 
+export interface Stat {
+  stat_id: string;
+  value: string;
+}
+
 export interface ProjectedPoints {
   coverage_type: string;
   week: string;
@@ -57,24 +72,9 @@ export interface Team {
   auction_budget_spent: number;
   managers: Manager[];
   points: Points;
+  stats: Stat[];
   projected_points: ProjectedPoints;
 }
-
-// export interface Matchup {
-//   week: string;
-//   week_start: string;
-//   week_end: string;
-//   status: string;
-//   is_playoffs: string;
-//   is_consolation: string;
-//   is_matchup_recap_available: number;
-//   matchup_recap_url: string;
-//   matchup_recap_title: string;
-//   matchup_grades: MatchupGrade[];
-//   is_tied: number;
-//   winner_team_key: string;
-//   teams: Team[];
-// }
 
 export interface Scoreboard {
   matchups: Matchup[];

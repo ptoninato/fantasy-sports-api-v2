@@ -40,9 +40,9 @@ async function GetOrImportMatchup(
     const insertResult = await pool.query(query);
 
     matchupDb = insertResult.rows[0] as MatchupModel;
-
-    return matchupDb;
   }
+
+  return matchupDb;
 }
 
 export default {
