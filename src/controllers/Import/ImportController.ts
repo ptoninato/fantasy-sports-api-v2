@@ -27,6 +27,12 @@ import leagueApiService from '../../services/api/YahooApi/leagueApiService';
 import seasonStatCategoryTypeDao from '../../services/DataAccess/seasonStatCategoryTypeDao';
 import seasonStatModiferDao from '../../services/DataAccess/seasonStatModiferDao';
 import statCategoryModifierImporter from '../../services/Importers/statCategoryModifierImporter';
+import scoreboardApiService from '../../services/api/YahooApi/scoreboardApiService';
+import SeasonWeekDao from '../../services/DataAccess/SeasonWeekDao';
+import { Team } from '../../Types/Scoreboard';
+import { MatchupModel } from '../../Models/MatchupModel';
+import matchupDao from '../../services/DataAccess/matchupDao';
+import matchupImporter from '../../services/Importers/matchupImporter';
 
 export async function ImportLeague(
   req: Request,
@@ -115,6 +121,19 @@ export async function ImportStatCategoryModifiers(
   const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
 
   await statCategoryModifierImporter.importStatCategoryModifier(leagueKeyParam);
+
+  return res.json();
+}
+
+export async function ImportMatchups(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  await matchupImporter.ImportLeagueMatchupsForEachWeek(leagueKeyParam);
 
   return res.json();
 }

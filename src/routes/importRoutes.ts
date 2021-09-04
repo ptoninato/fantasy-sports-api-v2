@@ -51,4 +51,12 @@ ImportRouter.get(
   }
 );
 
+ImportRouter.get(
+  '/importmatchups',
+  (req: Request, res: Response): Response => {
+    ImportController.ImportMatchups(req, res);
+    return res.json();
+  }
+);
+
 export default ImportRouter;
