@@ -28,6 +28,7 @@ import seasonStatCategoryTypeDao from '../../services/DataAccess/seasonStatCateg
 import seasonStatModiferDao from '../../services/DataAccess/seasonStatModiferDao';
 import statCategoryModifierImporter from '../../services/Importers/statCategoryModifierImporter';
 import scoreboardApiService from '../../services/api/YahooApi/scoreboardApiService';
+import SeasonWeekDao from '../../services/DataAccess/SeasonWeekDao';
 
 export async function ImportLeague(
   req: Request,
@@ -136,7 +137,16 @@ export async function ImportMatchups(
       i
     );
 
-    console.log(scoreboardForWeek);
+    for (let x = 0; x < scoreboardForWeek.scoreboard.matchups.length; x++) {
+      const matchup = scoreboardForWeek.scoreboard.matchups[x];
+
+      const seasonWeek = await SeasonWeekDao.GetOrImportSeasonWeek(
+        matchup,
+        season
+      );
+
+      console.log(seasonWeek);
+    }
   }
   return res.json();
 }
