@@ -133,6 +133,8 @@ export async function ImportMatchups(
 
   const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
 
+  await fantasyTeamImporter.ImportAllTeamsForLeague(leagueKeyParam);
+
   await matchupImporter.ImportLeagueMatchupsForEachWeek(leagueKeyParam);
 
   return res.json();

@@ -9,12 +9,13 @@ import matchupDao from '../../services/DataAccess/matchupDao';
 import { LeagueKeyParam } from '../../Types/LeagueKeyParam';
 import { Matchup } from '../../Types/Matchup';
 import { SeasonModel } from '../../Models/SeasonModel';
+import { SeasonWeekModel } from '../../Models/SeasonWeekModel';
 
 async function ImportMatchup(
   matchup: Matchup,
-  season: SeasonModel
+  season: SeasonModel,
+  seasonWeek: SeasonWeekModel
 ): Promise<void> {
-  const seasonWeek = await SeasonWeekDao.GetOrImportSeasonWeek(matchup, season);
   const isTied = matchup.is_tied === 1;
 
   let team1;
@@ -88,8 +89,6 @@ async function ImportLeagueMatchupsForEachWeek(
 ): Promise<void> {
   const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
-  await fantasyTeamImporter.ImportAllTeamsForLeague(leagueKeyParam);
-
   for (let i = 1; i <= season.lastweek; i++) {
     const scoreboardForWeek = await scoreboardApiService.GetScoreboardbyLeagueAndWeek(
       leagueKeyParam,
@@ -97,9 +96,27 @@ async function ImportLeagueMatchupsForEachWeek(
     );
 
     for (let x = 0; x < scoreboardForWeek.scoreboard.matchups.length; x++) {
-      const matchup = scoreboardForWeek.scoreboard.matchups[x];
+      const matchupFromYahoo = scoreboardForWeek.scoreboard.matchups[x];
+      const seasonWeek = await SeasonWeekDao.GetOrImportSeasonWeek(
+        matchupFromYahoo,
+        season
+      );
 
-      await ImportMatchup(matchup, season);
+      const matchupModel = await ImportMatchup(
+        matchupFromYahoo,
+        season,
+        seasonWeek
+      );
+
+      for (let y = 0; y < matchupFromYahoo.teams.length; y++) {
+        const team = matchupFromYahoo.teams[y] as Team;
+
+        const matchupGrade = matchupFromYahoo.matchup_grades.filter(
+          (value) => value.team_key == team.team_key
+        );
+
+        console.log(matchupGrade);
+      }
     }
   }
 }
