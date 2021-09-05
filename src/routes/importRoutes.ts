@@ -53,9 +53,14 @@ ImportRouter.get(
 
 ImportRouter.get(
   '/importmatchups',
-  (req: Request, res: Response): Response => {
-    ImportController.ImportMatchups(req, res);
-    return res.json();
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportMatchups(req, res);
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
   }
 );
 

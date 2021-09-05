@@ -43,7 +43,6 @@ async function GetOrImportStatCategory(
   statCategoryType: SeasonStatCategoryTypeModel
 ): Promise<SeasonStatCategoryModel> {
   let query = `select * from seasonstatcategory where seasonstatcategorytypeid = ${statCategoryType.seasonstatcategorytypeid} and seasonid = ${season.seasonid} limit 1`;
-  console.log(query);
   let result = await pool.query(query);
 
   if (result.rowCount == 0) {

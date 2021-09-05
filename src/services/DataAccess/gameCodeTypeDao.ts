@@ -15,6 +15,27 @@ async function getAllCodeTypes(): Promise<GameCodeType[]> {
   }
 }
 
+async function getTypeForSeason(seasonId: number): Promise<GameCodeType> {
+  try {
+    const query = `select g.* from gamecodetype g 
+join league l on g.gamecodetypeid = l.gamecodetypeid 
+join season s on l.leagueid = s.leagueid 
+where s.seasonid = ${seasonId}`;
+    console.log(query);
+    const result = await pool.query(query);
+
+    if (result.rowCount == 1) {
+      const gamecodetype = result.rows[0] as GameCodeType;
+      return gamecodetype;
+    }
+
+    return null;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+}
+
 async function getOrInsertGameCodeTypeByLeagueKeyAndGameCode(
   yahoo_game_code: string,
   yahoo_game_name: string
@@ -79,6 +100,7 @@ async function insertGameCodeType(
 
 export default {
   getAllCodeTypes,
+  getTypeForSeason,
   getCodeTypeByYahooGameCode,
   insertGameCodeType,
   getOrInsertGameCodeTypeByLeagueKeyAndGameCode

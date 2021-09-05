@@ -22,8 +22,6 @@ VALUES(${matchupTeam.matchupteamid}, ${statCategoryModel.seasonstatcategoryid}, 
 
   const MatchupCategoryTeamModel = result.rows[0] as MatchupCategoryTeamModel;
 
-  console.log(MatchupCategoryTeamModel);
-
   return MatchupCategoryTeamModel;
 }
 

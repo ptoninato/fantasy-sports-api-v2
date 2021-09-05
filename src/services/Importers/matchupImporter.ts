@@ -18,6 +18,9 @@ import seasonStatCategoryDao from '../DataAccess/seasonStatCategoryDao';
 import statCategoryImport from './statCategoryImport';
 import statCategoryModifierImporter from './statCategoryModifierImporter';
 import matchupStatCategoryDao from '../DataAccess/matchupStatCategoryDao';
+import gameCodeTypeDao from '../DataAccess/gameCodeTypeDao';
+import rosterApiService from '../api/YahooApi/rosterApiService';
+import PlayerDao from '../DataAccess/PlayerDao';
 
 async function ImportMatchup(
   matchup: Matchup,
@@ -96,7 +99,7 @@ async function ImportLeagueMatchupsForEachWeek(
   leagueKeyParam: LeagueKeyParam
 ): Promise<void> {
   const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
-
+  const gameCodeType = await gameCodeTypeDao.getTypeForSeason(season.seasonid);
   await statCategoryImport.importStatCategory(leagueKeyParam);
 
   await statCategoryModifierImporter.importStatCategoryModifier(leagueKeyParam);
@@ -138,41 +141,73 @@ async function ImportLeagueMatchupsForEachWeek(
             season.seasonid
           );
 
-          matchupStatCategoryDao.GetOrImportMatchupStatCategory(
+          await matchupStatCategoryDao.GetOrImportMatchupStatCategory(
             stat,
             statCategory,
             matchupTeam
           );
+        }
 
-          //   for (let y = 0; y < yahooTeam.stats.length; y++) {
-          //     const yahooStat = yahooTeam.stats[y];
-          //     const statCategory = statCategories.rows.filter(
+        if (gameCodeType.yahoogamecode.toLowerCase() === 'nfl') {
+          const roster = await rosterApiService.GetRosterForMatchupWeek(
+            team.team_id,
+            leagueKeyParam,
+            i
+          );
+          for (let r = 0; r < roster.roster.length; r++) {
+            const rosterSpot = roster.roster[r];
+            const player = await PlayerDao.GetOrImportPlayerUsingGameCodeTypeAndRoster(
+              rosterSpot,
+              gameCodeType
+            );
+          }
+          //   for (let r = 0; r < roster.length; r++) {
+          //     const rosterSpot = roster[r];
+          //     // console.log(`${rosterSpot.player_id}/${yahooTeamCodeFromDb.gamecodetypeid}`);
+          //     const playersFromDb = players.rows.filter(
           //       (value) =>
-          //         value.seasonid === season.seasonid &&
-          //         value.yahoocategoryid === Number(yahooStat.stat_id)
-          //     )[0];
-
-          //     const existingCategoryTeam = matchupCategoryTeams.rows.filter(
-          //       (value) =>
-          //         value.matchupteamid === matchupTeam.matchupteamid &&
-          //         value.seasonstatcategoryid ===
-          //           statCategory.seasonstatcategoryid
+          //         value.yahooplayerid === Number(rosterSpot.player_id) &&
+          //         value.gamecodetypeid === yahooTeamCodeFromDb.gamecodetypeid
           //     );
-
-          //     if (existingCategoryTeam.length === 0) {
-          //       const categoryTeam = [
-          //         yahooStat.value,
-          //         matchupTeam.matchupteamid,
-          //         statCategory.seasonstatcategoryid
+          //     let player;
+          //     if (playersFromDb.length === 0) {
+          //       await ImportPlayerTypeAndPlayer(
+          //         req,
+          //         res,
+          //         rosterSpot,
+          //         yahooTeamCodeFromDb
+          //       );
+          //       player = await players.rows.filter(
+          //         (value) =>
+          //           value.yahooplayerid === Number(rosterSpot.player_id) &&
+          //           value.gamecodetypeid === yahooTeamCodeFromDb.gamecodetypeid
+          //       )[0];
+          //     } else {
+          //       player = playersFromDb[0];
+          //     }
+          //     const existingMatchupRoster = existingMatchupRosters.rows.filter(
+          //       (value) =>
+          //         value.matchupteamid === yahooTeamCodeFromDb.matchupteamid &&
+          //         value.playerid === player.playerid
+          //     );
+          //     if (existingMatchupRoster.length === 0) {
+          //       const position = seasonPositions.rows.filter(
+          //         (value) =>
+          //           value.positionname === rosterSpot.selected_position &&
+          //           value.seasonid === season.seasonid
+          //       )[0];
+          //       const matchuproster = [
+          //         yahooTeamCodeFromDb.matchupteamid,
+          //         player.playerid,
+          //         gamedate,
+          //         position.seasonpositionid
           //       ];
-
           //       console.log(
-          //         `Adding matchup category team for week ${w} for ${matchupTeam.matchupteamid}/statid ${statCategory.seasonstatcategoryid}`
+          //         `Adding Roster Spot for ${player.firstname}, ${player.lastname}, ${position.positioname}, ${yahooTeamCodeFromDb.matchupteamid},  ${season.seasonyear}`
           //       );
           //       const query =
-          //         'INSERT INTO matchupcategoryteam(value, matchupteamid, seasonstatcategoryid) VALUES($1, $2, $3)';
-          //       const results = await pool.query(query, categoryTeam);
-          //       console.log('---------------');
+          //         'INSERT INTO matchuproster(matchupteamid, playerid, gamedate, seasonpositionid) VALUES($1, $2, $3, $4)';
+          //       const results = await pool.query(query, matchuproster);
           //     }
           //   }
         }

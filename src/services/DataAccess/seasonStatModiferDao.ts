@@ -7,9 +7,7 @@ async function GetOrImportStatCategoryModifier(
   value: number
 ): Promise<SeasonStatCategoryModifierModel> {
   let query = `select * from seasonstatmodifier where seasonstatcategoryid = ${statCategory.seasonstatcategoryid} limit 1`;
-  console.log(query);
   let result = await pool.query(query);
-  console.log(result.rows);
   if (result.rowCount == 0) {
     query = `INSERT INTO seasonstatmodifier
 (seasonstatcategoryid, value)

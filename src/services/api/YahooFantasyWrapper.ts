@@ -18,12 +18,16 @@ export async function RedirectToLogin(response: Response): Promise<void> {
 }
 
 export async function AuthenticateWrapper(request: Request): Promise<void> {
-  await yf.authCallback(
-    request, // the request will contain the auth code from Yahoo!
-    function test() {
-      console.log('logged in');
-    } // callback function that will be called after the token has been retrieved
-  );
+  try {
+    await yf.authCallback(
+      request, // the request will contain the auth code from Yahoo!
+      function test() {
+        console.log('logged in');
+      } // callback function that will be called after the token has been retrieved
+    );
+  } catch (err) {
+    console.log(err); // TypeError: failed to fetch
+  }
 }
 
 export default {
