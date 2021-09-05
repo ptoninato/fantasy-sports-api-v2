@@ -13,7 +13,7 @@ async function ImportMatchupTeam(
   matchupFromYahoo: Matchup,
   season: SeasonModel,
   matchupModel: MatchupModel
-): Promise<void> {
+): Promise<MatchupTeamModel> {
   let matchupGradeTypeModel;
 
   if (matchupFromYahoo.matchup_grades != null) {
@@ -47,19 +47,21 @@ async function ImportMatchupTeam(
   matchupTeam.matchupgradetypeid =
     matchupGradeTypeModel?.matchupgradetypeid ?? null;
 
-  const matchupDb = await matchupTeamDao.GetOrImportMatchupTeam(matchupTeam);
+  const matchupTeamDb = await matchupTeamDao.GetOrImportMatchupTeam(
+    matchupTeam
+  );
 
-  console.log(matchupDb);
+  return matchupTeamDb;
 }
 
 async function ImportMatchupTeamTies(
   matchupModel: MatchupModel,
   matchupFromYahoo: Matchup
 ): Promise<void> {
-  const tiedScores = matchupFromYahoo.stat_winners.filter(
+  const tiedScores = matchupFromYahoo.stat_winners?.filter(
     (value) => value.stat_winner.is_tied === 1
   );
-  if (tiedScores.length > 0) {
+  if (tiedScores != null && tiedScores.length > 0) {
     const newTiedMatchup = {} as MatchupTeamModel;
     newTiedMatchup.matchupid = matchupModel.matchupid;
     newTiedMatchup.tiedpoints = tiedScores.length;

@@ -14,6 +14,10 @@ import matchupGradeTypeDao from '../DataAccess/matchupGradeTypeDao';
 import { MatchupTeamModel } from '../../Models/MatchupTeamModel';
 import matchupTeamDao from '../DataAccess/matchupTeamDao';
 import matchupTeamImporter from './matchupTeamImporter';
+import seasonStatCategoryDao from '../DataAccess/seasonStatCategoryDao';
+import statCategoryImport from './statCategoryImport';
+import statCategoryModifierImporter from './statCategoryModifierImporter';
+import matchupStatCategoryDao from '../DataAccess/matchupStatCategoryDao';
 
 async function ImportMatchup(
   matchup: Matchup,
@@ -93,6 +97,10 @@ async function ImportLeagueMatchupsForEachWeek(
 ): Promise<void> {
   const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
+  await statCategoryImport.importStatCategory(leagueKeyParam);
+
+  await statCategoryModifierImporter.importStatCategoryModifier(leagueKeyParam);
+
   for (let i = 1; i <= season.lastweek; i++) {
     const scoreboardForWeek = await scoreboardApiService.GetScoreboardbyLeagueAndWeek(
       leagueKeyParam,
@@ -115,12 +123,59 @@ async function ImportLeagueMatchupsForEachWeek(
       for (let y = 0; y < matchupFromYahoo.teams.length; y++) {
         const team = matchupFromYahoo.teams[y] as Team;
 
-        await matchupTeamImporter.ImportMatchupTeam(
+        const matchupTeam = await matchupTeamImporter.ImportMatchupTeam(
           team,
           matchupFromYahoo,
           season,
           matchupModel
         );
+
+        for (let s = 0; s < team.stats?.length; s++) {
+          const stat = team.stats[s];
+
+          const statCategory = await seasonStatCategoryDao.GetStatCategoryForSeason(
+            <number>(<unknown>stat.stat_id),
+            season.seasonid
+          );
+
+          matchupStatCategoryDao.GetOrImportMatchupStatCategory(
+            stat,
+            statCategory,
+            matchupTeam
+          );
+
+          //   for (let y = 0; y < yahooTeam.stats.length; y++) {
+          //     const yahooStat = yahooTeam.stats[y];
+          //     const statCategory = statCategories.rows.filter(
+          //       (value) =>
+          //         value.seasonid === season.seasonid &&
+          //         value.yahoocategoryid === Number(yahooStat.stat_id)
+          //     )[0];
+
+          //     const existingCategoryTeam = matchupCategoryTeams.rows.filter(
+          //       (value) =>
+          //         value.matchupteamid === matchupTeam.matchupteamid &&
+          //         value.seasonstatcategoryid ===
+          //           statCategory.seasonstatcategoryid
+          //     );
+
+          //     if (existingCategoryTeam.length === 0) {
+          //       const categoryTeam = [
+          //         yahooStat.value,
+          //         matchupTeam.matchupteamid,
+          //         statCategory.seasonstatcategoryid
+          //       ];
+
+          //       console.log(
+          //         `Adding matchup category team for week ${w} for ${matchupTeam.matchupteamid}/statid ${statCategory.seasonstatcategoryid}`
+          //       );
+          //       const query =
+          //         'INSERT INTO matchupcategoryteam(value, matchupteamid, seasonstatcategoryid) VALUES($1, $2, $3)';
+          //       const results = await pool.query(query, categoryTeam);
+          //       console.log('---------------');
+          //     }
+          //   }
+        }
       }
 
       await matchupTeamImporter.ImportMatchupTeamTies(
