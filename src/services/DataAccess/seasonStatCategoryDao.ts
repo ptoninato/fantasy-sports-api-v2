@@ -12,6 +12,7 @@ async function GetStatCategoryForSeason(
   seasonid: number
 ): Promise<SeasonStatCategoryModel> {
   const query = `select s.* from seasonstatcategory s join seasonstatcategorytype st on s.seasonstatcategorytypeid = st.seasonstatcategorytypeid where s.seasonid = ${seasonid} and st.yahoocategoryid = ${yahoocategoryid} limit 1`;
+
   const result = await pool.query(query);
 
   const statCategoryModel = result.rows[0] as SeasonStatCategoryModel;

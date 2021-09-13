@@ -6,6 +6,24 @@ import { Player } from '../../Types/Player';
 import { Roster } from '../../Types/Roster';
 import positionTypeDao from '../DataAccess/positionTypeDao';
 
+const GetPlayerByPlayerId = async (playerId: number): Promise<PlayerModel> => {
+  try {
+    const query = `select * from player where playerid = ${playerId} limit 1`;
+
+    const result = await pool.query(query);
+
+    if (result.rowCount == 1) {
+      const player = result.rows[0] as PlayerModel;
+      return player;
+    }
+
+    return null;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 const GetPlayerByYahooPlayerIdAndGameCodeTypeId = async (
   playerId: number,
   gameCodeTypeId: number
@@ -119,8 +137,6 @@ const GetOrImportPlayerUsingGameCodeTypeAndRoster = async (
         (player as unknown) as Player,
         gameCodeTypeModel.gamecodetypeid
       );
-
-      console.log(playerModel);
     }
 
     return playerModel;
@@ -133,5 +149,6 @@ const GetOrImportPlayerUsingGameCodeTypeAndRoster = async (
 export default {
   GetPlayerByYahooPlayerIdAndGameCodeTypeId,
   GetOrImportPlayer,
-  GetOrImportPlayerUsingGameCodeTypeAndRoster
+  GetOrImportPlayerUsingGameCodeTypeAndRoster,
+  GetPlayerByPlayerId
 };

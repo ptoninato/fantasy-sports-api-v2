@@ -4,6 +4,20 @@ import { SeasonModel } from '../../Models/SeasonModel';
 import { SeasonPositionModel } from '../../Models/SeasonPositionModel';
 import { RosterPosition } from '../../Types/RosterPosition';
 
+async function GetSeasonPostion(
+  seasonid: number,
+  positionName: string
+): Promise<SeasonPositionModel> {
+  const query = `select * from seasonposition s 
+join rosterposition r on s.rosterpositionid = r.rosterpositionid 
+where s.seasonid = ${seasonid} and r.positionname = '${positionName}' limit 1`;
+  const result = await pool.query(query);
+
+  const seasonPositionModel = result.rows[0] as SeasonPositionModel;
+
+  return seasonPositionModel;
+}
+
 async function GetOrImportSeasonPosition(
   season: SeasonModel,
   rosterpositionModel: RosterPositionModel,
@@ -27,5 +41,6 @@ VALUES(${season.seasonid}, ${rosterpositionModel.rosterpositionid}, ${positionTy
 }
 
 export default {
-  GetOrImportSeasonPosition
+  GetOrImportSeasonPosition,
+  GetSeasonPostion
 };

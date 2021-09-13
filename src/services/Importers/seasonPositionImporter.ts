@@ -27,7 +27,6 @@ async function importSeasonPositions(
   for (let i = 0; i < rosterPostions.length; i++) {
     const position = rosterPostions[i];
 
-    console.log(position.position_type);
     const positionType = await positionTypeDao.GetOrImportPositionType(
       position.position_type,
       league.gamecodetypeid
@@ -45,8 +44,6 @@ async function importSeasonPositions(
       rosterPostionModel,
       position
     );
-
-    console.log(seasponPositionModel);
   }
 }
 

@@ -64,4 +64,30 @@ ImportRouter.get(
   }
 );
 
+ImportRouter.get(
+  '/importmatchuprosterplayerstats',
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportMatchupRosterPlayerStatsAll(req, res);
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+  }
+);
+
+ImportRouter.get(
+  '/importmatchuprosterplayerstatsbyweek',
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportMatchupRosterPlayerStatsByWeek(req, res);
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+  }
+);
+
 export default ImportRouter;

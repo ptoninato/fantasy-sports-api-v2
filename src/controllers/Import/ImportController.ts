@@ -33,6 +33,10 @@ import { Team } from '../../Types/Scoreboard';
 import { MatchupModel } from '../../Models/MatchupModel';
 import matchupDao from '../../services/DataAccess/matchupDao';
 import matchupImporter from '../../services/Importers/matchupImporter';
+import matchupRosterPlayerStatDao from '../../services/DataAccess/matchupRosterPlayerStatDao';
+import gameKeyDao from '../../services/DataAccess/gameKeyDao';
+import playerApiService from '../../services/api/YahooApi/playerApiService';
+import open from 'open';
 
 export async function ImportLeague(
   req: Request,
@@ -138,4 +142,122 @@ export async function ImportMatchups(
   await matchupImporter.ImportLeagueMatchupsForEachWeek(leagueKeyParam);
   console.log('Import Complete');
   return res.json();
+}
+
+export async function ImportMatchupRosterPlayerStatsAll(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+  const weekNumber = <number>(<unknown>req.query.weekNumber);
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
+
+  const gameCode = await gameKeyDao.getOrInsertGameKey(
+    leagueKeyParam.league_key
+  );
+
+  for (let w = 1; w <= season.lastweek; w++) {
+    const matchupRosterRecords = await matchupRosterPlayerStatDao.GetRosterPlayerStatsToImportForWeek(
+      season.seasonid,
+      w
+    );
+
+    for (let i = 0; i < matchupRosterRecords.length; i++) {
+      const matchupRosterModel = matchupRosterRecords[i];
+      const playerModel = await PlayerDao.GetPlayerByPlayerId(
+        matchupRosterModel.playerid
+      );
+
+      const playerGameKey = `${gameCode.yahoogamekey}.p.${playerModel.yahooplayerid}`;
+
+      const playerWeekStats = await playerApiService.GetPlayerStatsForWeek(
+        playerGameKey,
+        w
+      );
+      for (let ps = 0; ps < playerWeekStats.stats.stats.length; ps++) {
+        const playerStat = playerWeekStats.stats.stats[ps];
+
+        const seasonStatCategory = await seasonStatCategoryDao.GetStatCategoryForSeason(
+          <number>(<unknown>playerStat.stat_id),
+          season.seasonid
+        );
+
+        if (seasonStatCategory != null) {
+          const matchupRosterPlayerStat = await matchupRosterPlayerStatDao.ImportMatchupRosterPlayerStat(
+            matchupRosterModel,
+            seasonStatCategory,
+            playerStat.value
+          );
+        }
+      }
+    }
+    console.log('waiting');
+    await sleep(180000);
+  }
+
+  open('http://localhost:5000/login');
+
+  return res.json();
+}
+
+export async function ImportMatchupRosterPlayerStatsByWeek(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+  const weekNumber = <number>(<unknown>req.query.weekNumber);
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
+
+  const gameCode = await gameKeyDao.getOrInsertGameKey(
+    leagueKeyParam.league_key
+  );
+
+  const matchupRosterRecords = await matchupRosterPlayerStatDao.GetRosterPlayerStatsToImportForWeek(
+    season.seasonid,
+    weekNumber
+  );
+
+  for (let i = 0; i < matchupRosterRecords.length; i++) {
+    const matchupRosterModel = matchupRosterRecords[i];
+    const playerModel = await PlayerDao.GetPlayerByPlayerId(
+      matchupRosterModel.playerid
+    );
+
+    const playerGameKey = `${gameCode.yahoogamekey}.p.${playerModel.yahooplayerid}`;
+
+    const playerWeekStats = await playerApiService.GetPlayerStatsForWeek(
+      playerGameKey,
+      weekNumber
+    );
+    for (let ps = 0; ps < playerWeekStats.stats.stats.length; ps++) {
+      const playerStat = playerWeekStats.stats.stats[ps];
+
+      const seasonStatCategory = await seasonStatCategoryDao.GetStatCategoryForSeason(
+        <number>(<unknown>playerStat.stat_id),
+        season.seasonid
+      );
+
+      if (seasonStatCategory != null) {
+        const matchupRosterPlayerStat = await matchupRosterPlayerStatDao.ImportMatchupRosterPlayerStat(
+          matchupRosterModel,
+          seasonStatCategory,
+          playerStat.value
+        );
+      }
+    }
+  }
+
+  return res.json();
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

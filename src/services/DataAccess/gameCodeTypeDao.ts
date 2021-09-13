@@ -21,7 +21,6 @@ async function getTypeForSeason(seasonId: number): Promise<GameCodeType> {
 join league l on g.gamecodetypeid = l.gamecodetypeid 
 join season s on l.leagueid = s.leagueid 
 where s.seasonid = ${seasonId}`;
-    console.log(query);
     const result = await pool.query(query);
 
     if (result.rowCount == 1) {
