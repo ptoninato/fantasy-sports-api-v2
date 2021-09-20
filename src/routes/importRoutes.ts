@@ -90,4 +90,20 @@ ImportRouter.get(
   }
 );
 
+ImportRouter.get(
+  '/ImportDailyMatchupRosterPlayerStatsForYear',
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportDailyMatchupRosterPlayerStatsForYear(
+        req,
+        res
+      );
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+  }
+);
+
 export default ImportRouter;

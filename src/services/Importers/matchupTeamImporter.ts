@@ -46,7 +46,6 @@ async function ImportMatchupTeam(
 
   matchupTeam.matchupgradetypeid =
     matchupGradeTypeModel?.matchupgradetypeid ?? null;
-
   const matchupTeamDb = await matchupTeamDao.GetOrImportMatchupTeam(
     matchupTeam
   );

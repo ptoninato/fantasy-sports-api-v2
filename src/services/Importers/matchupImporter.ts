@@ -131,7 +131,6 @@ async function ImportLeagueMatchupsForEachWeek(
 
       for (let y = 0; y < matchupFromYahoo.teams.length; y++) {
         const team = matchupFromYahoo.teams[y] as Team;
-
         const matchupTeam = await matchupTeamImporter.ImportMatchupTeam(
           team,
           matchupFromYahoo,

@@ -17,6 +17,20 @@ async function GetMatchupTeam(
   return null;
 }
 
+async function GetMatchupTeamByMatchupTeamId(
+  matchupteamid: number
+): Promise<MatchupTeamModel> {
+  const query = `select * from matchupteam where matchupteamid = ${matchupteamid}  limit 1`;
+
+  const result = await pool.query(query);
+
+  if (result.rowCount === 1) {
+    return result.rows[0] as MatchupTeamModel;
+  }
+
+  return null;
+}
+
 async function GetMatchupTied(matchupid: number): Promise<MatchupTeamModel> {
   const query = `select * from matchupteam where matchupid = ${matchupid} and tiedpoints is not null limit 1`;
 
@@ -38,10 +52,8 @@ async function GetOrImportMatchupTeam(
   );
 
   if (matchupTeamDb == null) {
-    const query = `INSERT INTO matchupteam(matchupid, fantasyteamid, pointsfor, projectedpointsfor, matchupgradetypeid) VALUES(${matchupTeam.matchupid}, ${matchupTeam.fantasyteamid}, ${matchupTeam.pointsfor}, ${matchupTeam.projectedpoitsfor}, ${matchupTeam.matchupgradetypeid})`;
-
+    const query = `INSERT INTO matchupteam(matchupid, fantasyteamid, pointsfor, projectedpointsfor, matchupgradetypeid) VALUES(${matchupTeam.matchupid}, ${matchupTeam.fantasyteamid}, ${matchupTeam.pointsfor}, ${matchupTeam.projectedpoitsfor}, ${matchupTeam.matchupgradetypeid}) RETURNING *`;
     const insertResult = await pool.query(query);
-
     matchupTeamDb = insertResult.rows[0] as MatchupTeamModel;
   }
 
@@ -66,5 +78,7 @@ async function GetOrImportMatchupTiedScores(
 
 export default {
   GetOrImportMatchupTeam,
-  GetOrImportMatchupTiedScores
+  GetOrImportMatchupTiedScores,
+  GetMatchupTeam,
+  GetMatchupTeamByMatchupTeamId
 };

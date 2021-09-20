@@ -21,7 +21,7 @@ export async function GetRosterForMatchupWeek(
 export async function GetRosterForDay(
   teamId: string,
   leagueKeyParam: LeagueKeyParam,
-  day: Date
+  day: string
 ): Promise<RosterRootObject> {
   const fullTeamKey = `${leagueKeyParam.league_key}.t.${teamId}`;
   const returnedData = await YahooFantasy.yf.roster.players(fullTeamKey, day);
