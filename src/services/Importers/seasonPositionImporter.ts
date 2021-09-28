@@ -25,7 +25,6 @@ async function importSeasonPositions(
   const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
   const rosterPostions = leagueSettings.settings.roster_positions;
-  console.log(rosterPostions);
   for (let i = 0; i < rosterPostions.length; i++) {
     const position = rosterPostions[i];
 
@@ -91,7 +90,6 @@ async function importSeasonPosition(
     league.gamecodetypeid,
     positiontypeid
   );
-  console.log(rosterPostionModel);
 
   const seasponPositionModel = await seasonPositionDao.GetOrImportSeasonPosition(
     season,
@@ -99,7 +97,6 @@ async function importSeasonPosition(
     position
   );
 
-  console.log(seasponPositionModel);
   return seasponPositionModel;
 }
 

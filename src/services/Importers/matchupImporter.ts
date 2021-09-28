@@ -27,6 +27,8 @@ import rosterPostionDao from '../DataAccess/rosterPostionDao';
 import matchupRosterDao from '../DataAccess/matchupRosterDao';
 import playerApiService from '../api/YahooApi/playerApiService';
 import matchupRosterPlayerStatDao from '../DataAccess/matchupRosterPlayerStatDao';
+import { match } from 'assert';
+import { MatchupCategoryResultModel } from '../../Models/MatchupCategoryResultModel';
 
 async function ImportMatchup(
   matchup: Matchup,
@@ -129,6 +131,8 @@ async function ImportLeagueMatchupsForEachWeek(
         seasonWeek
       );
 
+      const teamsForStats: TeamForStats[] = [];
+
       for (let y = 0; y < matchupFromYahoo.teams.length; y++) {
         const team = matchupFromYahoo.teams[y] as Team;
         const matchupTeam = await matchupTeamImporter.ImportMatchupTeam(
@@ -137,6 +141,11 @@ async function ImportLeagueMatchupsForEachWeek(
           season,
           matchupModel
         );
+        const teamForStatWinnerImport = {} as TeamForStats;
+        teamForStatWinnerImport.yahooteamid = team.team_id;
+        teamForStatWinnerImport.fantasyteamid = matchupTeam.fantasyteamid;
+
+        teamsForStats[y] = teamForStatWinnerImport;
 
         for (let s = 0; s < team.stats?.length; s++) {
           const stat = team.stats[s];
@@ -190,8 +199,60 @@ async function ImportLeagueMatchupsForEachWeek(
         matchupModel,
         matchupFromYahoo
       );
+
+      if (matchupFromYahoo.stat_winners != undefined) {
+        const matchupid = matchupModel.matchupid;
+
+        for (let s = 0; s < matchupFromYahoo.stat_winners.length; s++) {
+          const matchpuStat = matchupFromYahoo.stat_winners[s];
+
+          const statCategory = await seasonStatCategoryDao.GetStatCategoryForSeason(
+            <number>(<unknown>matchpuStat.stat_winner.stat_id),
+            season.seasonid
+          );
+
+          const matchupCategoryResultModel = {} as MatchupCategoryResultModel;
+
+          matchupCategoryResultModel.matchupid = matchupModel.matchupid;
+          matchupCategoryResultModel.seasonstatcategoryid =
+            statCategory.seasonstatcategoryid;
+
+          if (matchpuStat.stat_winner.is_tied == 1) {
+            matchupCategoryResultModel.istied = true;
+          } else {
+            const splitWinningTeamKey = matchpuStat.stat_winner.winner_team_key.split(
+              '.'
+            );
+
+            const winningTeamid = splitWinningTeamKey.slice(-1)[0];
+            // const winningTeam = teamsForStats.filter(
+            //   (x) => (x.yahooteamid = winningTeamid)
+            // )[0];
+
+            console.log(winningTeamid);
+
+            const winningTeam = await teamsForStats.find(
+              (x) => x.yahooteamid === winningTeamid
+            );
+            const lostingTeam = await teamsForStats.find(
+              ({ yahooteamid }) => yahooteamid != winningTeamid
+            );
+
+            matchupCategoryResultModel.winningteamid =
+              winningTeam.fantasyteamid;
+            matchupCategoryResultModel.losingteamid = lostingTeam.fantasyteamid;
+          }
+
+          console.log(matchupCategoryResultModel);
+        }
+      }
     }
   }
+}
+
+export interface TeamForStats {
+  yahooteamid: string;
+  fantasyteamid: number;
 }
 
 // async function ImportMatchupRosterPlayerStats(

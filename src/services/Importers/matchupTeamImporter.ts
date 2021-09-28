@@ -67,8 +67,6 @@ async function ImportMatchupTeamTies(
     const tiedMatchup = await matchupTeamDao.GetOrImportMatchupTiedScores(
       newTiedMatchup
     );
-
-    console.log(tiedMatchup);
   }
 }
 

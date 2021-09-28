@@ -1,3 +1,5 @@
+import { StatWinner } from './Scoreboard';
+
 export interface Matchup {
   week: string;
   week_start: string;

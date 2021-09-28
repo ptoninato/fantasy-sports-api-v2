@@ -37,7 +37,6 @@ async function ImportMatchupRosterPlayerStat(
     result = await pool.query(query);
 
     const MatchupRosterModel = result.rows[0] as MatchupRosterPlayerStatModel;
-    console.log(MatchupRosterModel);
   }
 
   const MatchupRosterModel = result.rows[0] as MatchupRosterPlayerStatModel;
