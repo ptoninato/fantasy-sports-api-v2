@@ -29,6 +29,7 @@ import playerApiService from '../api/YahooApi/playerApiService';
 import matchupRosterPlayerStatDao from '../DataAccess/matchupRosterPlayerStatDao';
 import { match } from 'assert';
 import { MatchupCategoryResultModel } from '../../Models/MatchupCategoryResultModel';
+import matchupCategoryResultDao from '../DataAccess/matchupCategoryResultDao';
 
 async function ImportMatchup(
   matchup: Matchup,
@@ -216,6 +217,9 @@ async function ImportLeagueMatchupsForEachWeek(
           matchupCategoryResultModel.matchupid = matchupModel.matchupid;
           matchupCategoryResultModel.seasonstatcategoryid =
             statCategory.seasonstatcategoryid;
+          matchupCategoryResultModel.winningteamid = null;
+          matchupCategoryResultModel.losingteamid = null;
+          matchupCategoryResultModel.istied = false;
 
           if (matchpuStat.stat_winner.is_tied == 1) {
             matchupCategoryResultModel.istied = true;
@@ -225,11 +229,6 @@ async function ImportLeagueMatchupsForEachWeek(
             );
 
             const winningTeamid = splitWinningTeamKey.slice(-1)[0];
-            // const winningTeam = teamsForStats.filter(
-            //   (x) => (x.yahooteamid = winningTeamid)
-            // )[0];
-
-            console.log(winningTeamid);
 
             const winningTeam = await teamsForStats.find(
               (x) => x.yahooteamid === winningTeamid
@@ -243,7 +242,11 @@ async function ImportLeagueMatchupsForEachWeek(
             matchupCategoryResultModel.losingteamid = lostingTeam.fantasyteamid;
           }
 
-          console.log(matchupCategoryResultModel);
+          const result = matchupCategoryResultDao.GetOrImportMatchupCategoryResult(
+            matchupCategoryResultModel
+          );
+
+          console.log(result);
         }
       }
     }
