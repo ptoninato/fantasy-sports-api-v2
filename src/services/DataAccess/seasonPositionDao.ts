@@ -28,9 +28,14 @@ async function GetOrImportSeasonPosition(
   let result = await pool.query(query);
 
   if (result.rowCount == 0) {
+    let count = 0;
+
+    if (positionType != null) {
+      count = positionType.count;
+    }
     query = `INSERT INTO public.seasonposition
 (seasonid, rosterpositionid, count)
-VALUES(${season.seasonid}, ${rosterpositionModel.rosterpositionid}, ${positionType.count}) RETURNING *`;
+VALUES(${season.seasonid}, ${rosterpositionModel.rosterpositionid}, ${count}) RETURNING *`;
 
     result = await pool.query(query);
   }

@@ -10,6 +10,7 @@ import matchupRosterDao from '../../services/DataAccess/matchupRosterDao';
 import matchupTeamDao from '../../services/DataAccess/matchupTeamDao';
 import { sleep } from '../../Helpers/Utility/Sleep';
 import { LeagueKeyParam } from '../../Types/LeagueKeyParam';
+import seasonPositionImporter from './seasonPositionImporter';
 
 async function ImportRosterAllDays(
   leagueKeyParam: LeagueKeyParam
@@ -24,6 +25,7 @@ async function ImportRosterAllDays(
   const gameCodeType = await gameCodeTypeDao.getTypeForSeason(season.seasonid);
 
   const league = await leagueDao.GetLeagueByLeagueName('The League');
+  await seasonPositionImporter.importSeasonPositions(leagueKeyParam);
 
   let timeoutCount = 0;
 
@@ -65,10 +67,17 @@ async function ImportRosterAllDays(
           gameCodeType
         );
 
-        const seasonPosition = await seasonPositionDao.GetSeasonPostion(
+        let seasonPosition = await seasonPositionDao.GetSeasonPostion(
           season.seasonid,
           rosterSpot.selected_position
         );
+
+        if (seasonPosition == null) {
+          seasonPosition = await seasonPositionImporter.importSeasonPosition(
+            leagueKeyParam,
+            rosterSpot.selected_position
+          );
+        }
 
         const rosterPostion = await matchupRosterDao.GetOrImportMatchupRoster(
           rosterSpot,
