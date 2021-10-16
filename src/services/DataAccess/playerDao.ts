@@ -1,15 +1,35 @@
 import pool from '../../database/db';
+import { GameCodeType } from '../../Models/GameCodeType';
 import { LeagueModel } from '../../Models/LeagueModel';
 import { PlayerModel } from '../../Models/PlayerModel';
 import { Player } from '../../Types/Player';
+import { Roster } from '../../Types/Roster';
 import positionTypeDao from '../DataAccess/positionTypeDao';
 
+const GetPlayerByPlayerId = async (playerId: number): Promise<PlayerModel> => {
+  try {
+    const query = `select * from player where playerid = ${playerId} limit 1`;
+
+    const result = await pool.query(query);
+
+    if (result.rowCount == 1) {
+      const player = result.rows[0] as PlayerModel;
+      return player;
+    }
+
+    return null;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 const GetPlayerByYahooPlayerIdAndGameCodeTypeId = async (
-  player: Player,
-  league: LeagueModel
+  playerId: number,
+  gameCodeTypeId: number
 ): Promise<PlayerModel> => {
   try {
-    const query = `select * from player where gamecodetypeid = ${league.gamecodetypeid} and yahooplayerid = ${player.player_id} limit 1`;
+    const query = `select * from player where gamecodetypeid = ${gameCodeTypeId} and yahooplayerid = ${playerId} limit 1`;
 
     const result = await pool.query(query);
 
@@ -27,7 +47,7 @@ const GetPlayerByYahooPlayerIdAndGameCodeTypeId = async (
 
 const InsertPlayer = async (
   player: Player,
-  league: LeagueModel
+  gameCodeTypeId: number
 ): Promise<PlayerModel> => {
   try {
     let lastName = player.name.last.length == 0 ? 'Defense' : player.name.last;
@@ -36,12 +56,12 @@ const InsertPlayer = async (
     const firstName = player.name.first.replace(/'/g, "''");
     const positionTypeModel = await positionTypeDao.GetOrImportPositionType(
       player.position_type,
-      league.gamecodetypeid
+      gameCodeTypeId
     );
 
     const query = `INSERT INTO public.player
 (gamecodetypeid, yahooplayerid, firstname, lastname, positiontypeid)
-VALUES(${league.gamecodetypeid}, ${player.player_id}, '${firstName}', '${lastName}', ${positionTypeModel.positiontypeid}) RETURNING *`;
+VALUES(${gameCodeTypeId}, ${player.player_id}, '${firstName}', '${lastName}', ${positionTypeModel.positiontypeid}) RETURNING *`;
 
     const result = await pool.query(query);
 
@@ -63,12 +83,60 @@ const GetOrImportPlayer = async (
 ): Promise<PlayerModel> => {
   try {
     let playerModel = await GetPlayerByYahooPlayerIdAndGameCodeTypeId(
-      player,
-      league
+      <number>(<unknown>player.player_id),
+      league.gamecodetypeid
     );
 
     if (playerModel == null) {
-      playerModel = await InsertPlayer(player, league);
+      playerModel = await InsertPlayer(player, league.gamecodetypeid);
+    }
+
+    return playerModel;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+const GetOrImportPlayerRoster = async (
+  player: Roster,
+  league: LeagueModel
+): Promise<PlayerModel> => {
+  try {
+    let playerModel = await GetPlayerByYahooPlayerIdAndGameCodeTypeId(
+      <number>(<unknown>player.player_id),
+      league.gamecodetypeid
+    );
+
+    if (playerModel == null) {
+      playerModel = await InsertPlayer(
+        (player as unknown) as Player,
+        league.gamecodetypeid
+      );
+    }
+
+    return playerModel;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+const GetOrImportPlayerUsingGameCodeTypeAndRoster = async (
+  player: Roster,
+  gameCodeTypeModel: GameCodeType
+): Promise<PlayerModel> => {
+  try {
+    let playerModel = await GetPlayerByYahooPlayerIdAndGameCodeTypeId(
+      <number>(<unknown>player.player_id),
+      gameCodeTypeModel.gamecodetypeid
+    );
+
+    if (playerModel == null) {
+      playerModel = await InsertPlayer(
+        (player as unknown) as Player,
+        gameCodeTypeModel.gamecodetypeid
+      );
     }
 
     return playerModel;
@@ -80,5 +148,7 @@ const GetOrImportPlayer = async (
 
 export default {
   GetPlayerByYahooPlayerIdAndGameCodeTypeId,
-  GetOrImportPlayer
+  GetOrImportPlayer,
+  GetOrImportPlayerUsingGameCodeTypeAndRoster,
+  GetPlayerByPlayerId
 };

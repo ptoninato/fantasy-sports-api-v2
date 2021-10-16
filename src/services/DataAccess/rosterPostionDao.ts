@@ -7,7 +7,6 @@ async function GetOrImportRosterPosition(
   positiontypeid: number
 ): Promise<RosterPositionModel> {
   let query = `select * from rosterposition where positionname = '${positionname}' and gamecodetypeid = ${gamecodetypeid} limit 1`;
-  console.log(query);
 
   let result = await pool.query(query);
 
@@ -19,8 +18,6 @@ async function GetOrImportRosterPosition(
     query = `INSERT INTO public.rosterposition
 (positionname, gamecodetypeid, positiontypeid)
 VALUES('${positionname}', ${gamecodetypeid}, ${positiontypeid}) RETURNING *`;
-
-    console.log(query);
 
     result = await pool.query(query);
   }

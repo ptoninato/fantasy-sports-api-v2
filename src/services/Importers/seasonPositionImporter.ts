@@ -6,6 +6,8 @@ import positionTypeDao from '../DataAccess/positionTypeDao';
 import rosterPostionDao from '../DataAccess/rosterPostionDao';
 import { LeagueKeyParam } from '../../Types/LeagueKeyParam';
 import seasonPositionDao from '../DataAccess/seasonPositionDao';
+import { RosterPosition } from '../../Types/RosterPosition';
+import { SeasonPositionModel } from '../../Models/SeasonPositionModel';
 
 async function importSeasonPositions(
   leagueKeyParam: LeagueKeyParam
@@ -23,11 +25,9 @@ async function importSeasonPositions(
   const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
   const rosterPostions = leagueSettings.settings.roster_positions;
-
   for (let i = 0; i < rosterPostions.length; i++) {
     const position = rosterPostions[i];
 
-    console.log(position.position_type);
     const positionType = await positionTypeDao.GetOrImportPositionType(
       position.position_type,
       league.gamecodetypeid
@@ -45,9 +45,59 @@ async function importSeasonPositions(
       rosterPostionModel,
       position
     );
-
-    console.log(seasponPositionModel);
   }
 }
 
-export default { importSeasonPositions };
+async function importSeasonPosition(
+  leagueKeyParam: LeagueKeyParam,
+  positionNameParam: string
+): Promise<SeasonPositionModel> {
+  const leagueSettings = await leagueSettingsApiService.getLeagueSettingsByLeagueKey(
+    leagueKeyParam.league_key
+  );
+
+  const league = await leagueDao.GetOrImportLeague(leagueKeyParam.league_key);
+
+  const gamekey = await gameKeyDao.getOrInsertGameKey(
+    leagueKeyParam.league_key
+  );
+
+  const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
+
+  const rosterPostions = leagueSettings.settings.roster_positions;
+
+  const positions = rosterPostions.filter(
+    (x) => x.position === positionNameParam
+  ) as RosterPosition[];
+
+  let position;
+  let positionType;
+  if (positions.length > 0) {
+    position = positions[0];
+
+    positionType = await positionTypeDao.GetOrImportPositionType(
+      position.position_type,
+      league.gamecodetypeid
+    );
+  }
+
+  const positiontypeid = positionType ? positionType.positiontypeid : null;
+
+  const positionName = position ? position.position : positionNameParam;
+
+  const rosterPostionModel = await rosterPostionDao.GetOrImportRosterPosition(
+    positionName,
+    league.gamecodetypeid,
+    positiontypeid
+  );
+
+  const seasponPositionModel = await seasonPositionDao.GetOrImportSeasonPosition(
+    season,
+    rosterPostionModel,
+    position
+  );
+
+  return seasponPositionModel;
+}
+
+export default { importSeasonPositions, importSeasonPosition };

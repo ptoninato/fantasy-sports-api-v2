@@ -53,9 +53,56 @@ ImportRouter.get(
 
 ImportRouter.get(
   '/importmatchups',
-  (req: Request, res: Response): Response => {
-    ImportController.ImportMatchups(req, res);
-    return res.json();
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportMatchups(req, res);
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+  }
+);
+
+ImportRouter.get(
+  '/importmatchuprosterplayerstats',
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportMatchupRosterPlayerStatsAll(req, res);
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+  }
+);
+
+ImportRouter.get(
+  '/importmatchuprosterplayerstatsbyweek',
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportMatchupRosterPlayerStatsByWeek(req, res);
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
+  }
+);
+
+ImportRouter.get(
+  '/ImportDailyMatchupRosterPlayerStatsForYear',
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      await ImportController.ImportDailyMatchupRosterPlayerStatsForYear(
+        req,
+        res
+      );
+      return res.json();
+    } catch (err) {
+      console.log(err);
+      return res.json(err);
+    }
   }
 );
 

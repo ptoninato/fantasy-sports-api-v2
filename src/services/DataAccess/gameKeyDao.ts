@@ -31,8 +31,8 @@ async function getOrInsertGameKey(league_key: string): Promise<GameKeyModel> {
     );
 
     const gameCodeType = await gameCodeTypeDao.getOrInsertGameCodeTypeByLeagueKeyAndGameCode(
-      yahooGameInfo.name,
-      yahooGameInfo.code
+      yahooGameInfo.code,
+      yahooGameInfo.name
     );
 
     gameKey = await insertGameCode(

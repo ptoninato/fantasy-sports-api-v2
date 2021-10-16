@@ -7,6 +7,19 @@ import { StatCategory } from '../../Types/StatCategory';
 import { StatPositionType } from '../../Types/StatPositionType';
 import seasonStatCategoryTypeDao from './seasonStatCategoryTypeDao';
 
+async function GetStatCategoryForSeason(
+  yahoocategoryid: number,
+  seasonid: number
+): Promise<SeasonStatCategoryModel> {
+  const query = `select s.* from seasonstatcategory s join seasonstatcategorytype st on s.seasonstatcategorytypeid = st.seasonstatcategorytypeid where s.seasonid = ${seasonid} and st.yahoocategoryid = ${yahoocategoryid} limit 1`;
+
+  const result = await pool.query(query);
+
+  const statCategoryModel = result.rows[0] as SeasonStatCategoryModel;
+
+  return statCategoryModel;
+}
+
 async function GetStatCategoryForCategoryType(
   yahoocategoryid: number,
   season: SeasonModel,
@@ -18,7 +31,6 @@ async function GetStatCategoryForCategoryType(
   );
 
   const query = `select * from seasonstatcategory where seasonstatcategorytypeid = ${seasonStatCategoryTypeModel.seasonstatcategorytypeid} and seasonid = ${season.seasonid} limit 1`;
-  console.log(query);
   const result = await pool.query(query);
 
   const statCategoryModel = result.rows[0] as SeasonStatCategoryModel;
@@ -32,7 +44,6 @@ async function GetOrImportStatCategory(
   statCategoryType: SeasonStatCategoryTypeModel
 ): Promise<SeasonStatCategoryModel> {
   let query = `select * from seasonstatcategory where seasonstatcategorytypeid = ${statCategoryType.seasonstatcategorytypeid} and seasonid = ${season.seasonid} limit 1`;
-  console.log(query);
   let result = await pool.query(query);
 
   if (result.rowCount == 0) {
@@ -52,5 +63,6 @@ VALUES(${statCategoryType.seasonstatcategorytypeid}, ${season.seasonid}, ${enabl
 
 export default {
   GetOrImportStatCategory,
-  GetStatCategoryForCategoryType
+  GetStatCategoryForCategoryType,
+  GetStatCategoryForSeason
 };

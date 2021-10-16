@@ -33,6 +33,21 @@ import { Team } from '../../Types/Scoreboard';
 import { MatchupModel } from '../../Models/MatchupModel';
 import matchupDao from '../../services/DataAccess/matchupDao';
 import matchupImporter from '../../services/Importers/matchupImporter';
+import matchupRosterPlayerStatDao from '../../services/DataAccess/matchupRosterPlayerStatDao';
+import gameKeyDao from '../../services/DataAccess/gameKeyDao';
+import playerApiService from '../../services/api/YahooApi/playerApiService';
+import open from 'open';
+import MatchupRosterStats from '../../services/Importers/MatchupRosterStatsImporter';
+import MatchupRosterStatsImporter from '../../services/Importers/MatchupRosterStatsImporter';
+import MatchupTeamDatesDao from '../../services/DataAccess/MatchupTeamDatesDao';
+import moment from 'moment';
+import rosterApiService from '../../services/api/YahooApi/rosterApiService';
+import gameCodeTypeDao from '../../services/DataAccess/gameCodeTypeDao';
+import seasonPositionDao from '../../services/DataAccess/seasonPositionDao';
+import matchupRosterDao from '../../services/DataAccess/matchupRosterDao';
+import matchupTeamDao from '../../services/DataAccess/matchupTeamDao';
+import { sleep } from '../../Helpers/Utility/Sleep';
+import MatchupRosterImporter from '../../services/Importers/MatchupRosterImporter';
 
 export async function ImportLeague(
   req: Request,
@@ -133,7 +148,48 @@ export async function ImportMatchups(
 
   const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
 
+  await fantasyTeamImporter.ImportAllTeamsForLeague(leagueKeyParam);
+
   await matchupImporter.ImportLeagueMatchupsForEachWeek(leagueKeyParam);
+  console.log('Import Complete');
+  return res.json();
+}
+
+export async function ImportMatchupRosterPlayerStatsAll(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  await MatchupRosterStatsImporter.ImportRostersAllWeeks(leagueKeyParam);
+
+  return res.json();
+}
+
+export async function ImportMatchupRosterPlayerStatsByWeek(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+  const weekNumber = <number>(<unknown>req.query.weekNumber);
+
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  await MatchupRosterStats.ImportRostersByWeek(leagueKeyParam, weekNumber);
+
+  return res.json();
+}
+
+export async function ImportDailyMatchupRosterPlayerStatsForYear(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const league_key = req.query.league_key.toString();
+  const leagueKeyParam = await LeagueKeyHelper.SplitLeagueKey(league_key);
+
+  await MatchupRosterImporter.ImportRosterAllDays(leagueKeyParam);
 
   return res.json();
 }

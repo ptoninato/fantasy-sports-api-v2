@@ -21,7 +21,6 @@ async function ImportTransactionsForLeague(
   const season = await seasonDao.GetOrImportSeason(leagueKeyParam);
 
   const league = await leagueDao.GetOrImportLeague(leagueKeyParam.league_key);
-  console.log(transactions.transactions[0].players[0]);
 
   for (let i = 0; i < transactions.transactions.length; i++) {
     const transaction = transactions.transactions[i];
