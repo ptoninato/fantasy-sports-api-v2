@@ -86,8 +86,8 @@ async function ImportMatchup(
   matchupForDb.isconsolation = matchup.is_consolation === '1';
   matchupForDb.seasonid = season.seasonid;
 
-  if (matchup.matchup_recap_title != null) {
-    matchupForDb.matchuprecaptitle = matchup.matchup_recap_title.replace(
+  if (matchup.matchup_recap_title != null || matchup.matchup_recap_title != false) {
+    matchupForDb.matchuprecaptitle = matchup.matchup_recap_title.toString().replace(
       /'/g,
       "''"
     );

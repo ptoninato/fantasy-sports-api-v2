@@ -9,7 +9,7 @@ export interface Matchup {
   is_consolation: string;
   is_matchup_recap_available: number;
   matchup_recap_url: string;
-  matchup_recap_title: string;
+  matchup_recap_title: string | boolean;
   matchup_grades: MatchupGrade[];
   is_tied: number;
   winner_team_key: string;
