@@ -6,9 +6,10 @@ async function GetPlayerStatsForWeek(
   week: number
 ): Promise<PlayerStats> {
   const weekString = <string>(<unknown>week);
+  console.log(playerKey, weekString);
   const returnedData = await YahooFantasy.yf.player.stats(
     playerKey,
-    weekString
+    weekString.toString()
   );
   const playerStats = <PlayerStats>returnedData;
   return playerStats;

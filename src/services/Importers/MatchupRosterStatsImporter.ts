@@ -51,8 +51,8 @@ async function ImportRostersAllWeeks(
         }
       }
     }
-    console.log('waiting');
-    await sleep(180000);
+    // console.log('waiting');
+    // await sleep(180000);
   }
 }
 
@@ -79,26 +79,29 @@ async function ImportRostersByWeek(
 
     const playerGameKey = `${gameCode.yahoogamekey}.p.${playerModel.yahooplayerid}`;
 
-    const playerWeekStats = await playerApiService.GetPlayerStatsForWeek(
-      playerGameKey,
-      weekNumber
-    );
-    for (let ps = 0; ps < playerWeekStats.stats.stats.length; ps++) {
-      const playerStat = playerWeekStats.stats.stats[ps];
+    // const playerWeekStats = await playerApiService.GetPlayerStatsForWeek(
+    //   playerGameKey,
+    //   weekNumber
+    // );
 
-      const seasonStatCategory = await seasonStatCategoryDao.GetStatCategoryForSeason(
-        <number>(<unknown>playerStat.stat_id),
-        season.seasonid
-      );
+    const playerWeekStats = await matchupRosterPlayerStatDao.GetPlayerStateFromOldDb(weekNumber, season.seasonyear, playerModel.playerid);
+    console.log(playerWeekStats);
+    // for (let ps = 0; ps < playerWeekStats.stats.stats.length; ps++) {
+    //   const playerStat = playerWeekStats.stats.stats[ps];
 
-      if (seasonStatCategory != null) {
-        const matchupRosterPlayerStat = await matchupRosterPlayerStatDao.ImportMatchupRosterPlayerStat(
-          matchupRosterModel,
-          seasonStatCategory,
-          playerStat.value
-        );
-      }
-    }
+    //   const seasonStatCategory = await seasonStatCategoryDao.GetStatCategoryForSeason(
+    //     <number>(<unknown>playerStat.stat_id),
+    //     season.seasonid
+    //   );
+
+    //   if (seasonStatCategory != null) {
+    //     const matchupRosterPlayerStat = await matchupRosterPlayerStatDao.ImportMatchupRosterPlayerStat(
+    //       matchupRosterModel,
+    //       seasonStatCategory,
+    //       playerStat.value
+    //     );
+    //   }
+    // }
   }
 }
 

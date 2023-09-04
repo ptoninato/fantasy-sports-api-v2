@@ -1,4 +1,5 @@
 import pool from '../../database/db';
+import client from '../../database/dbLegacy';
 import { MatchupRosterModel } from '../../Models/MatchupRosterModel';
 import { MatchupRosterPlayerStatModel } from '../../Models/MatchupRosterPlayerStatModel';
 import { SeasonStatCategoryModel } from '../../Models/StatCategoryModel';
@@ -7,6 +8,7 @@ async function GetRosterPlayerStatsToImportForWeek(
   seasonId: number,
   weekNumber: number
 ): Promise<MatchupRosterModel[]> {
+  console.log('here');
   const query = `select m2.* from matchuproster m2
 join matchupteam m on m2.matchupteamid = m.matchupteamid 
 join matchup m3 on m.matchupid = m3.matchupid 
@@ -14,10 +16,9 @@ join season s on m3.seasonid = s.seasonid
 join league l on s.leagueid = l.leagueid
 join gamecodetype g on l.gamecodetypeid = g.gamecodetypeid 
 join seasonweek s2 on m3.seasonweekid = s2.seasonweekid 
-where s.seasonid = '${seasonId}' and s2.weeknumber = ${weekNumber}`;
-
+where s.seasonid = ${seasonId} and s2.weeknumber = ${weekNumber}`;
+  console.log(query);
   const result = await pool.query(query);
-
   const MatchupRosterModel = result.rows as MatchupRosterModel[];
 
   return MatchupRosterModel;
@@ -44,7 +45,20 @@ async function ImportMatchupRosterPlayerStat(
   return MatchupRosterModel;
 }
 
+async function GetPlayerStateFromOldDb(weeknumber: number, year: number, playerid: number) {
+  let query = `select * from individualplayerstats i where weeknumber = ${weeknumber} and seasonyear = '${year}' and playerid = '${playerid}'`;
+
+  client.connect();
+
+  client.query(query, (err, res) => {
+    return res;
+  });
+
+  client.end();
+}
+
 export default {
   ImportMatchupRosterPlayerStat,
-  GetRosterPlayerStatsToImportForWeek
+  GetRosterPlayerStatsToImportForWeek,
+  GetPlayerStateFromOldDb
 };

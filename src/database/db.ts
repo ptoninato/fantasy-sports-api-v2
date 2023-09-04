@@ -6,4 +6,6 @@ pool.on('connect', () => {
   console.log('connected');
 });
 
+pool.on('error', (err) => {console.log(err)});
+
 export default pool;

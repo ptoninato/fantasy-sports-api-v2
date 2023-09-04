@@ -131,7 +131,7 @@ async function ImportLeagueMatchupsForEachWeek(
         season,
         seasonWeek
       );
-
+        console.log(matchupModel);
       const teamsForStats: TeamForStats[] = [];
 
       for (let y = 0; y < matchupFromYahoo.teams.length; y++) {
@@ -147,7 +147,7 @@ async function ImportLeagueMatchupsForEachWeek(
         teamForStatWinnerImport.fantasyteamid = matchupTeam.fantasyteamid;
 
         teamsForStats[y] = teamForStatWinnerImport;
-
+        console.log(teamsForStats);
         for (let s = 0; s < team.stats?.length; s++) {
           const stat = team.stats[s];
 
@@ -171,7 +171,6 @@ async function ImportLeagueMatchupsForEachWeek(
             leagueKeyParam,
             i
           );
-
           for (let r = 0; r < roster.roster.length; r++) {
             const rosterSpot = roster.roster[r];
 
@@ -184,6 +183,7 @@ async function ImportLeagueMatchupsForEachWeek(
               season.seasonid,
               rosterSpot.selected_position
             );
+              console.log(seasonPosition);
 
             const rosterPostion = await matchupRosterDao.GetOrImportMatchupRoster(
               rosterSpot,
@@ -195,6 +195,7 @@ async function ImportLeagueMatchupsForEachWeek(
           }
         }
       }
+      console.log('here');
 
       await matchupTeamImporter.ImportMatchupTeamTies(
         matchupModel,
