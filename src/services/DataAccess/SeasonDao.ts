@@ -51,7 +51,7 @@ const GetOrImportSeason = async (
     let season = await GetSeasonByYahooLeagueId(
       <number>(<unknown>leagueKeyParam.league_id)
     );
-
+      console.log(season);
     if (season == null) {
       season = await seasonImporter.importSeason(leagueKeyParam.league_key);
     }
@@ -80,7 +80,7 @@ const insertSeason = async (seasonModel: SeasonModel): Promise<SeasonModel> => {
 `;
 
   query = query.replace(/undefined/g, null);
-
+  console.log(query);
   const result = await pool.query(query);
 
   if (result.rowCount == 1) {

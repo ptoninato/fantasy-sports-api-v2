@@ -1,6 +1,6 @@
 export interface GameKeyModel {
   gamecodetypeid: number;
-  gamecodeid: number;
-  yahoogamekey: number;
+  gamekeyid: number;
+  yahoogamekey: string;
   seasonyear: string;
 }

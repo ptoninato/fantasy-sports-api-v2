@@ -8,4 +8,6 @@ const client = new Client({
   password: process.env.PGPASSWORD,
 })
 
+client.connect();
+
 export default client;

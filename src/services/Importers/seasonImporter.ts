@@ -16,11 +16,10 @@ async function importSeason(league_key: string): Promise<SeasonModel> {
   const league = await leagueDao.GetOrImportLeague(league_key);
 
   const gamekey = await gameKeyDao.getOrInsertGameKey(yahooGameKey);
-
   const seasonModel = <SeasonModel>Object.create({});
 
   seasonModel.leagueid = league.leagueid;
-  seasonModel.gamecodeid = gamekey.gamecodeid;
+  seasonModel.gamecodeid = gamekey.gamekeyid;
   seasonModel.yahooleagueid = <number>(<unknown>yahooleagueId);
   seasonModel.startdate = leagueSettings.start_date;
   seasonModel.enddate = leagueSettings.end_date;
