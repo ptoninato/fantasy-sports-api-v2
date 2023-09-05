@@ -14,4 +14,5 @@ COPY . .
 
 # Exports
 EXPOSE 5000
+EXPOSE 9229
 CMD [ "npm", "run", "dev" ]
