@@ -23,9 +23,6 @@ export async function ImportLeague(
   const yahooleagueId = leagueKeySplit[2];
 
   const league = await leagueDao.GetOrImportLeague(league_key);
-
-  console.log(league);
-
   return res.json();
 }
 
